@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-a1376d77d7c635572c9a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Samp1_1",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Samp1_1::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Samp1_1-Debug-8130d42d5586f50731b3.json",
+					"name" : "Samp1_1",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Samp1_1_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Samp1_1_autogen-Debug-d522c000d5e35ab71c29.json",
+					"name" : "Samp1_1_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Samp1_1_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Samp1_1_autogen_timestamp_deps-Debug-090d3faa8023b49e0efe.json",
+					"name" : "Samp1_1_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/Works/QtLearn/Chapter1/Samp1_1/Samp1_1/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug",
+		"source" : "D:/Works/QtLearn/Chapter1/Samp1_1/Samp1_1"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}
