@@ -1,3 +1,0 @@
-D:\ProgramsData\Qt\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\Samp3_2.dir/objects.a
-D:\ProgramsData\Qt\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\Samp3_2.dir/objects.a @CMakeFiles\Samp3_2.dir\objects1.rsp
-D:\ProgramsData\Qt\Tools\mingw1310_64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\Samp3_2.dir/objects.a -Wl,--no-whole-archive -o Samp3_2.exe -Wl,--out-implib,libSamp3_2.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\Samp3_2.dir\linkLibs.rsp
