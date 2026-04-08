@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>607</width>
-    <height>503</height>
+    <width>487</width>
+    <height>424</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -74,7 +74,7 @@
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QSlider" name="sliderAalpha">
+           <widget class="QSlider" name="sliderAlpha">
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
             </property>

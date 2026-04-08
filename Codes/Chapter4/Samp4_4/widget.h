@@ -21,5 +21,12 @@ public:
     ~Widget() override;
 
 
+private slots:
+    void on_sliderRed_valueChanged(int value);
+    void on_dial_valueChanged(int value);
+    void on_radioDec_clicked();
+    void on_radioBin_clicked();
+    void on_radioOct_clicked();
+    void on_radioHex_clicked();
 };
 #endif // WIDGET_H
