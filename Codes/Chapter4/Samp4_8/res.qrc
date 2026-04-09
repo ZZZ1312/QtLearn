@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>icons/dir.png</file>
+        <file>icons/picture.png</file>
+        <file>icons/root.png</file>
+        <file>icons/actualSize.png</file>
+        <file>icons/addFile.png</file>
+        <file>icons/delete.png</file>
+        <file>icons/float.png</file>
+        <file>icons/high.png</file>
+        <file>icons/invisible.png</file>
+        <file>icons/quit.png</file>
+        <file>icons/traverse.png</file>
+        <file>icons/visible.png</file>
+        <file>icons/width.png</file>
+        <file>icons/zoomIn.png</file>
+        <file>icons/zoomOut.png</file>
+    </qresource>
+</RCC>
