@@ -180,7 +180,6 @@ str == "abc";
 str != "abc";  
 
 str.compare("abc");  // 返回 <0, =0, >0
-
 ```
 
 👉 忽略大小写：
@@ -238,7 +237,6 @@ const char* p = str.toUtf8().data(); // ❌
 
 QByteArray ba = str.toUtf8();  
 const char* p = ba.data();
-
 ```
 
 #### length ≠ 字符数（Unicode）
@@ -261,5 +259,3 @@ for (...) {
 ```cpp
 str.reserve(1000);
 ```
-
-
