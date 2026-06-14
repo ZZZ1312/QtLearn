@@ -398,9 +398,9 @@ void editingFinished(); // 编辑完成（失去焦点或按回车）
 > // "dd/MM/yyyy" → 17/04/2026  
 > // "yyyy年MM月dd日" → 2026年04月17日
 
-# QDateTimeEdit
+## QDateTimeEdit
 
-## 常用函数
+### 常用函数
 
 1. 日期时间设置类  
 
@@ -443,7 +443,7 @@ void setAccelerated(bool on); // 是否启用加速（长按加速变化）
 void setWrapping(bool on); // 是否允许循环（如时间到23:59→00:00）
 ```
 
-## 常用信号
+### 常用信号
 
 ```cpp
 void dateTimeChanged(const QDateTime &datetime); // 日期时间变化时触发（最常用）  
@@ -459,7 +459,7 @@ void editingFinished(); // 编辑完成（失去焦点或按回车）
 > // "dd/MM/yyyy hh:mm AP" → 17/04/2026 06:30 PM  
 > // "yyyy年MM月dd日 HH时mm分" → 2026年04月17日 18时30分、
 
-# QComboBox
+## QComboBox
 
 `QComboBox` 时下拉列表框组件，提供一个下拉列表共用户选择，也可以当作一个`QLineEdit` 用作用户输入。
 
@@ -467,7 +467,7 @@ void editingFinished(); // 编辑完成（失去焦点或按回车）
 
 可以在Qt Designer中双击`QComboBox`，会出现列表项编辑器，可以在该编辑器中给`QComboBox`添加简单项，还可以为每一项设置简单图标。
 
-## 用法
+### 用法
 
 1. 添加简单项
 
@@ -511,7 +511,7 @@ void addItem(const Icon &icon, const QString &text, const QVariant &userData = Q
    
    - `int count()`：返回项的个数。
 
-## 常用信号
+### 常用信号
 
 `QComboBox` 组件上选择项发生变化时，会发射如下两个信号。
 
@@ -526,11 +526,11 @@ void currentIndexChanged(const QString &text);
 void editTextChanged(const QString &text);
 ```
 
-# QPlainText
+## QPlainText
 
 `QPlainText` 是一个多行文本编辑器，用于显示和编辑多行简单文本。
 
-## 常用函数
+常用函数
 
 1. 添加一行字符串
 
@@ -558,7 +558,7 @@ QString QPlainTextEdit::toPlainText() const;
    
    一个document有多个`QTextBlock`，从document中读取出的一个文本快类型为`QTextBlock`，通过`QTextBlock::text()`函数可以获取其纯文本文字。
 
-# QToolButton
+## QToolButton
 
 `QToolButton` 有一个 `setDefaultAction()` h桉树，可以使其与一个 Action 关联。按钮的文字、图标、ToolTip 都将自动设置为与其关联的 Action 一直。
 
@@ -566,7 +566,83 @@ QString QPlainTextEdit::toPlainText() const;
 
 `QToolButton` 有一个 `setMenu()` 函数，可以为其设置一个下拉式菜单。
 
+<<<<<<< Updated upstream
 # Qt UI编程常用容器组件
+=======
+### 常用函数
+
+1. 关联`QAction`
+
+   原型函数：
+
+   ```c++
+   void QToolButton::setDefaultAction(QAction *actiono);
+   ```
+
+   使用改函数设置一个Action后，将自动获取Action的文字、图标、ToolTip等属性。
+
+2. 设计下拉菜单
+
+   可以为`QToolButton`设置一个下拉菜单。
+
+   用到了以下函数:
+
+   ```c++
+   void QToolButton::setPopupMode(QToolButton::MenuButtonPopup);
+   ```
+
+   参数为一个枚举量，可选项如下：
+
+   - `QToolButton::DelayedPopup`：**延时弹出**，按住按钮一会儿才会弹出菜单。
+   - `QToolButton::MenuButtonPopup`：**菜单按钮**，按钮右侧显示一个小箭头，点击箭头弹出菜单，点击按钮触发常规点击。
+   - `QToolButton::InstantPopup`：**立即弹出**，点击按钮的任何地方都会直接弹出菜单，不触发普通的 `clicked()` 信号。
+
+   ```c++
+   void QToolButton::setMenu(QMenu *menu);
+   ```
+
+   为按钮创建下拉菜单对象
+
+   ```c++
+   // 案例
+   QMenu *menu = new QMenu(this);
+   menu->addAction(ui->actionSelALL);
+   menu->addAction(ui->actionSelNone);
+   menu->addAction(ui->actSelNone);
+   
+   ui->tBtnSelectItem->setMenu(menu);
+   ```
+
+3. 设置按钮样式
+
+   ```c++
+   void QToolButton::setToolButtonStyle(Qt::ToolButtonBesideIcon);
+   ```
+
+   可选项如下：
+
+   - `Qt::ToolButtonIconOnly`：仅显示图标。这是默认值，不显示文字，即使设置了`setText`。
+   - `Qt::ToolButtonTextOnly`：仅显示文字。
+   - `Qt::ToolButtonTextBesideIcon`：文字在图标旁边（水平排列）。通常图标在左，文字在右。
+   - `Qt::ToolButtonTextUnderIcon`：文字在图标下方。
+   - `Qt::ToolButtonFollowStyle`：跟随系统风格，根据当前操作系统桌面环境的默认设置来设定。
+
+# Qt UI 编程常用容器组件
+
+## QToolBox
+
+`QToolBox` 是一个用于容纳工具按钮的容器组件。可以设置多个分组。
+
+## QTabWidget
+
+# Qt UI 编程常用功能组件
+
+## QAction
+
+## QMenu
+
+## QCursor
+>>>>>>> Stashed changes
 
 ## 常用简化容器类
 

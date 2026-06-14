@@ -259,3 +259,6 @@ for (...) {
 ```cpp
 str.reserve(1000);
 ```
+
+## QAction
+

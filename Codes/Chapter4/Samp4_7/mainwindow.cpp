@@ -46,7 +46,7 @@ void MainWindow::createSelectionPopMenu()
 
     // 工具栏上的下拉式菜单按钮
     QToolButton *aBtn = new QToolButton(this);
-    aBtn->setPopupMode(QToolButton::InstantPopup);
+    aBtn->setPopupMode(QToolButton::DelayedPopup);
     aBtn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     aBtn->setDefaultAction(ui->actionSelPopMenu);
     aBtn->setMenu(menuSelection);

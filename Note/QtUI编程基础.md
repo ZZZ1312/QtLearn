@@ -203,3 +203,22 @@ QWidget::setTabOrder(btn2, btn3);
 QWidget::setTabOrder(btn2, btn3);
 // 第一次调用过setTabOrder时，第一个参数顺序为1，然后依次向下编号。
 ```
+
+### 创建右键菜单
+
+每个从`QWidget` 继承的类都有信号 `customContextMenuRequested()` 这个信号在鼠标右键点击时发射。可以创建和运行右键快捷菜单。
+
+```c++
+// 案例
+void MainWindow::on_listWidget_customContextMenuRequested(const QPoint &pos)
+{
+	Q_UNUSED(pos);
+	QMenu *menuList = new QMenu(this); // 创建菜单
+	// 添加 Actions 菜单项
+	menuList->addAction(ui->actListIni);
+	menuList->addAction(ui->actListClear);
+	menuList->exec(QCursor::pos()); // 在鼠标光标位置显示右键快捷菜单
+	delete menuList;
+}
+```
+
