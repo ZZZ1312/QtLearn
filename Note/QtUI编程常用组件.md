@@ -530,7 +530,7 @@ void editTextChanged(const QString &text);
 
 `QPlainText` 是一个多行文本编辑器，用于显示和编辑多行简单文本。
 
-常用函数
+### 常用函数
 
 1. 添加一行字符串
 
@@ -566,9 +566,6 @@ QString QPlainTextEdit::toPlainText() const;
 
 `QToolButton` 有一个 `setMenu()` 函数，可以为其设置一个下拉式菜单。
 
-<<<<<<< Updated upstream
-# Qt UI编程常用容器组件
-=======
 ### 常用函数
 
 1. 关联`QAction`
@@ -628,286 +625,6 @@ QString QPlainTextEdit::toPlainText() const;
    - `Qt::ToolButtonFollowStyle`：跟随系统风格，根据当前操作系统桌面环境的默认设置来设定。
 
 # Qt UI 编程常用容器组件
-
-## QToolBox
-
-`QToolBox` 是一个用于容纳工具按钮的容器组件。可以设置多个分组。
-
-## QTabWidget
-
-# Qt UI 编程常用功能组件
-
-## QAction
-
-## QMenu
-
-## QCursor
->>>>>>> Stashed changes
-
-## 常用简化容器类
-
-### QListWidget
-
-`QListWidget` 是 Qt 中一个基于项的列表控件，用于以列表形式展示一组数据。
-
-> `QListWidget` 是对 `QListView` + `QAbstractItemModel` 的封装。适合中小规模数据展示
-
-特点：
-
-- 每个元素是一个 `QListWidgetItem`
-
-- 组件负责管理数据（不需要自己写Model）
-
-- 支持文本、图标、自定义组件等
-
-#### 常用函数
-
-1. 项目管理
-
-```cpp
-void addItem(const QString &label); // 添加一个只有文字的项目
-
-void addItem(QListWidgetItem *item); // 添加一个ListWidget Item
-
-void insertItem(int row, const QString &label); // 插入一个简单的只有文字的项目
-
-
-QListWidgetItem *takeItem(int row); // 从列表中删除项目
-/* 只会从列表中移除该项，不会自动 delete，需要自己释放 */
-
-QListWidgetItem *item(int row) const; // 获取项目
-
-int count() const; // 获取到所有Item的数量
-
-void clear(); // 清空列表
-```
-
-2. 当前项操作
-
-```cpp
-QListWidgetItem *currentItem() const; // 获取到当前选中的 Item
-
-void setCurrentItem(QListItemItem *item); // 设置当前选中的 Item
-
-int currentRow() const; // 当前选中的 Item 的行数
-
-void setCurrentRow(int row); // 设置当前选中的 item 的行数
-```
-
-3. 查找
-
-```cpp
-QList<QListWidgetItem*> findItems(const QString &text, Qt::MatchFlags flags); 
-// 根据 text 找到对应的 Item
-/*
-   Qt::MatchFlags 是设置匹配模式，可选项如下：
-
-*/
-```
-
-4. 排序
-
-```cpp
-void sortItems(Qt::SortOrder order = Qt::AccendingOrder); // 按照指定的方式对 Items 进行排序
-/*
-   Qt::SortOrder 是排序规则，可选项如下：
-
-*/
-```
-
-5. 选择模式
-
-```cpp
-void setSelectionMode(QAbstractItemView::SelectionMode mode);
-/*
-   选择模式：
-   - SingleSelection ： 单选
-   - MultiSelection ：多选
-   - ExtendedSelection : Shift/Ctrl 多选
-*/
-```
-
-#### 常用信号
-
-```cpp
-void itemClicked(QListWidgetItem *item); // 单击项
-void itemDoubleClicked(QListWidgetItem *item); // 双击项
-
-void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous); // 当前项变化，
-void currentRowChanged(int currentRow); // 当前项变化，但是信号传递的是行数
-
-void itemSelectioinChanged(); // 选择变化
-
-void itemChanged(QListWIdgetItem *item); // 项的内容发生变化
-```
-
-#### QListWidgetItem 介绍
-
-`QListWidgetItem` 是 Qt 中配合 `QListWidget` 使用的 **列表项对象**，代表列表中的“每一行”。
-
-> 可以理解为：`QListWidget` 中每个元素的数据 + 显示属性的载体
-
-每个 item 可以包含：
-
-- 文本
-
-- 图标
-
-- 数据（隐藏数据）
-
-- 状态（选中/勾选/禁用等）
-
-`QListWidgetItem` 最重要的属性是 flags，该属性控制着该Item的很多功能，如是否可选中、是否可编辑、是否可拖动、是否可勾选等等。
-
-##### 常用函数
-
-1. 构造函数
-
-```cpp
-QListWidgetItem();
-
-QListWidgetItem(const QString &text); // 传入显示的文本
-
-QListWidgetItem(const QIcon &icon, const QString &text); // 传入图标和文本
-
-QListWidgetItem(QListWidget *parent); // 设置默认父List
-
-QListWidgetItem(const QString &text, QListWidget *parent);
-```
-
-2. 其他函数
-
-```cpp
-void setText(const QString &text);  // 设置/获取文本
-QString text() const;
-
-void setIcon(const QIcon &icon);  // 设置/获取图标
-QIcon icon() const;
-
-void setData(int role, const QVariant &value); // 设置/获取数据
-QVariant data(int role) const;
-
-void setFont(const QFont &font); // 设置/获取字体
-QFont font(); 
-
-void setForeground(const QBrush &brush);  // 设置/获取字体颜色
-QBrush foreground();
-
-void setBackground(const QBrush &brush); // 设置/获取字体颜色
-void background(); 
-
-void setSizeHint(const QSize &size); // 自定义 Item 高度
-
-void setHidden(bool hide); // 设置隐藏/显示
-bool isHidden() const; // 获取是否隐藏
-```
-
-3. 设置编辑数据的控件
-
-默认情况下，`QListWidgetItem` 设置了支持编辑后，双击会触发一个编辑行为，默认的编辑控件为 `LineEdit` 功能比较简单。
-
-可以在 Item 中放置一个编辑控件，自定义编辑时展示的控件样式。
-
-```cpp
-// 案例
-
-QListWidgetItem *item = new QListWidgetItem(listWidget);
-
-QWidget *widget = new QWidget();
-
-QHBoxLayout *layout = new QHBoxLayout(widget);
-layout->setContentsMarins(5, 5, 5, 5);
-
-QLineEdit *edit = new QLineEdit;
-QPushButton *btn = new QPushButton("OK");
-
-layout->addWidget(edit);
-layout->addWidget(btn);
-
-item->setSizeHint(widget->sizeHint()); // 一定要设置尺寸，否则UI会显示不正常
-
-listWidget->addItem(item);
-listWidget->setItemWidget(item, widget);
-
-// 添加完成后，需要自己处理数据的同步
-connect(edit, &QLineEdit::textChanged, listWidget, [item](const QString &text){
-   item->setData(Qt::UserRole, text);
-})
-```
-
-4. 行为控制
-   
-   `QListWidgetItem` 的 `flags` 属性用来控制每个 item 的行为能力，比如：
-   - 能否选中
-   
-   - 能否编辑
-   
-   - 能否拖拽
-   
-   - 能否勾选
-   
-   基本用法：
-   
-   ```cpp
-   Qt::ItemFlags flags(); // 获取 flags
-   void setFlags(QtItemFlags);
-   /*  
-   flags 是枚举值，可以组合使用，例如：
-   Qt::ItemIsSelectable | Qt::ItemIsEnabled
-   */
-   ```
-   
-   常用 `flags` 如下：
-   
-   - `Qt::ItemIsSelectable`：可以选择
-   
-   - `Qt::ItemIsEnabled`：是否启用（不启用则显示灰色）
-   
-   - `Qt::ItemIsEditable`：可以编辑
-   
-   - `Qt::ItemIsUserCheckable`：允许显示复选框
-     
-     设置该选项后，可以通过 `CheckState` 来获取到选中状态
-   
-   - `Qt::itemIsDragEnabled`：可以拖动
-   
-   - `Qt::ItemIsDropEnabled`：可以作为放置目标
-   
-   - `Qt::ItemIsAutoTristate`：常用于树结构
-5. Role 用于描述一个 item 的不同“维度的数据”。每个Role对应一个 `QVariant`。
-   
-   > Qt内部的实现相当于：`QMap<int, QVariant>`
-   
-   最常用的 role 如下：
-   - `Qt::DisplayRole`：显示的文本
-   
-   - `Qt::DecorationRole`：图标
-   
-   - `Qt::EditRole`：编辑数据（通常和 DisplayRole 显示的数据一样）
-   
-   - `Qt::CheckStateRole`：复选框
-   
-   - `Qt::ToolTipRole`：提示文字
-   
-   - `Qt::ForegroundRole`：字体颜色
-   
-   - `Qt::BackgroundRole`：背景
-   
-   - `Qt::UserRole`：用户数据，用来存自己的业务数据。
-   
-   ```cpp
-   // 使用方式
-   item->setData(Qt::UserRole, 1001); // ID
-   item->setData(Qt::UserRole + 1, "type");
-   ```
-
-### QTreeWidget
-
-`QTreeWidgetItem`
-
-### QTableWidget
-
-## Model/View类
 
 ## QToolBox
 
@@ -1209,3 +926,1017 @@ void visibilityChanged(bool visible); // 可见性发生变化
 
 void dockLocationChanged(Qt::DockWidgetArea area); // 停靠区域发生变化
 ```
+
+# 常用简化容器类
+
+## QListWidget
+
+`QListWidget` 是 Qt 中一个基于项的列表控件，用于以列表形式展示一组数据。
+
+> `QListWidget` 是对 `QListView` + `QAbstractItemModel` 的封装。适合中小规模数据展示
+
+特点：
+
+- 每个元素是一个 `QListWidgetItem`
+
+- 组件负责管理数据（不需要自己写Model）
+
+- 支持文本、图标、自定义组件等
+
+### 常用函数
+
+1. 项目管理
+
+```cpp
+void addItem(const QString &label); // 添加一个只有文字的项目
+
+void addItem(QListWidgetItem *item); // 添加一个ListWidget Item
+
+void insertItem(int row, const QString &label); // 插入一个简单的只有文字的项目
+
+
+QListWidgetItem *takeItem(int row); // 从列表中删除项目
+/* 只会从列表中移除该项，不会自动 delete，需要自己释放 */
+
+QListWidgetItem *item(int row) const; // 获取项目
+
+int count() const; // 获取到所有Item的数量
+
+void clear(); // 清空列表
+```
+
+2. 当前项操作
+
+```cpp
+QListWidgetItem *currentItem() const; // 获取到当前选中的 Item
+
+void setCurrentItem(QListItemItem *item); // 设置当前选中的 Item
+
+int currentRow() const; // 当前选中的 Item 的行数
+
+void setCurrentRow(int row); // 设置当前选中的 item 的行数
+```
+
+3. 查找
+
+```cpp
+QList<QListWidgetItem*> findItems(const QString &text, Qt::MatchFlags flags); 
+// 根据 text 找到对应的 Item
+/*
+   Qt::MatchFlags 是设置匹配模式，可选项如下：
+
+*/
+```
+
+4. 排序
+
+```cpp
+void sortItems(Qt::SortOrder order = Qt::AccendingOrder); // 按照指定的方式对 Items 进行排序
+/*
+   Qt::SortOrder 是排序规则，可选项如下：
+
+*/
+```
+
+5. 选择模式
+
+```cpp
+void setSelectionMode(QAbstractItemView::SelectionMode mode);
+/*
+   选择模式：
+   - SingleSelection ： 单选
+   - MultiSelection ：多选
+   - ExtendedSelection : Shift/Ctrl 多选
+*/
+```
+
+### 常用信号
+
+```cpp
+void itemClicked(QListWidgetItem *item); // 单击项
+void itemDoubleClicked(QListWidgetItem *item); // 双击项
+
+void currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous); // 当前项变化，
+void currentRowChanged(int currentRow); // 当前项变化，但是信号传递的是行数
+
+void itemSelectioinChanged(); // 选择变化
+
+void itemChanged(QListWIdgetItem *item); // 项的内容发生变化
+```
+
+### QListWidgetItem 介绍
+
+`QListWidgetItem` 是 Qt 中配合 `QListWidget` 使用的 **列表项对象**，代表列表中的“每一行”。
+
+> 可以理解为：`QListWidget` 中每个元素的数据 + 显示属性的载体
+
+每个 item 可以包含：
+
+- 文本
+
+- 图标
+
+- 数据（隐藏数据）
+
+- 状态（选中/勾选/禁用等）
+
+`QListWidgetItem` 最重要的属性是 flags，该属性控制着该Item的很多功能，如是否可选中、是否可编辑、是否可拖动、是否可勾选等等。
+
+#### 常用函数
+
+1. 构造函数
+
+```cpp
+QListWidgetItem();
+
+QListWidgetItem(const QString &text); // 传入显示的文本
+
+QListWidgetItem(const QIcon &icon, const QString &text); // 传入图标和文本
+
+QListWidgetItem(QListWidget *parent); // 设置默认父List
+
+QListWidgetItem(const QString &text, QListWidget *parent);
+```
+
+2. 其他函数
+
+```cpp
+void setText(const QString &text);  // 设置/获取文本
+QString text() const;
+
+void setIcon(const QIcon &icon);  // 设置/获取图标
+QIcon icon() const;
+
+void setData(int role, const QVariant &value); // 设置/获取数据
+QVariant data(int role) const;
+
+void setFont(const QFont &font); // 设置/获取字体
+QFont font(); 
+
+void setForeground(const QBrush &brush);  // 设置/获取字体颜色
+QBrush foreground();
+
+void setBackground(const QBrush &brush); // 设置/获取字体颜色
+void background(); 
+
+void setSizeHint(const QSize &size); // 自定义 Item 高度
+
+void setHidden(bool hide); // 设置隐藏/显示
+bool isHidden() const; // 获取是否隐藏
+```
+
+3. 设置编辑数据的控件
+
+默认情况下，`QListWidgetItem` 设置了支持编辑后，双击会触发一个编辑行为，默认的编辑控件为 `LineEdit` 功能比较简单。
+
+可以在 Item 中放置一个编辑控件，自定义编辑时展示的控件样式。
+
+```cpp
+// 案例
+
+QListWidgetItem *item = new QListWidgetItem(listWidget);
+
+QWidget *widget = new QWidget();
+
+QHBoxLayout *layout = new QHBoxLayout(widget);
+layout->setContentsMarins(5, 5, 5, 5);
+
+QLineEdit *edit = new QLineEdit;
+QPushButton *btn = new QPushButton("OK");
+
+layout->addWidget(edit);
+layout->addWidget(btn);
+
+item->setSizeHint(widget->sizeHint()); // 一定要设置尺寸，否则UI会显示不正常
+
+listWidget->addItem(item);
+listWidget->setItemWidget(item, widget);
+
+// 添加完成后，需要自己处理数据的同步
+connect(edit, &QLineEdit::textChanged, listWidget, [item](const QString &text){
+   item->setData(Qt::UserRole, text);
+})
+```
+
+4. 行为控制
+
+   `QListWidgetItem` 的 `flags` 属性用来控制每个 item 的行为能力，比如：
+
+   - 能否选中
+
+   - 能否编辑
+
+   - 能否拖拽
+
+   - 能否勾选
+
+   基本用法：
+
+   ```cpp
+   Qt::ItemFlags flags(); // 获取 flags
+   void setFlags(QtItemFlags);
+   /*  
+   flags 是枚举值，可以组合使用，例如：
+   Qt::ItemIsSelectable | Qt::ItemIsEnabled
+   */
+   ```
+
+   常用 `flags` 如下：
+
+   - `Qt::ItemIsSelectable`：可以选择
+
+   - `Qt::ItemIsEnabled`：是否启用（不启用则显示灰色）
+
+   - `Qt::ItemIsEditable`：可以编辑
+
+   - `Qt::ItemIsUserCheckable`：允许显示复选框
+
+     设置该选项后，可以通过 `CheckState` 来获取到选中状态
+
+   - `Qt::itemIsDragEnabled`：可以拖动
+
+   - `Qt::ItemIsDropEnabled`：可以作为放置目标
+
+   - `Qt::ItemIsAutoTristate`：常用于树结构
+
+5. Role 用于描述一个 item 的不同“维度的数据”。每个Role对应一个 `QVariant`。
+
+   > Qt内部的实现相当于：`QMap<int, QVariant>`
+
+   最常用的 role 如下：
+
+   - `Qt::DisplayRole`：显示的文本
+
+   - `Qt::DecorationRole`：图标
+
+   - `Qt::EditRole`：编辑数据（通常和 DisplayRole 显示的数据一样）
+
+   - `Qt::CheckStateRole`：复选框
+
+   - `Qt::ToolTipRole`：提示文字
+
+   - `Qt::ForegroundRole`：字体颜色
+
+   - `Qt::BackgroundRole`：背景
+
+   - `Qt::UserRole`：用户数据，用来存自己的业务数据。
+
+   ```cpp
+   // 使用方式
+   item->setData(Qt::UserRole, 1001); // ID
+   item->setData(Qt::UserRole + 1, "type");
+   ```
+
+## QTreeWidget
+
+`QTreeWidget` 是 Qt 中一个基于项（Item-Based）的树形控件，用于以层级结构（父节点 / 子节点）展示数据。
+
+> `QTreeWidget` 是对 `QTreeView` + `QAbstractItemModel` 的封装，适合中小规模树状数据展示。
+
+特点：
+
+- 每个节点是一个 `QTreeWidgetItem`
+- 支持无限层级的父子结构
+- 支持多列显示
+- 支持图标、复选框、自定义组件等
+- 不需要自己实现 Model
+
+典型应用场景：
+
+- 文件目录树
+- 工程资源管理器
+- 配置树
+- 组织架构图
+
+------
+
+### 常用函数
+
+#### 1. 节点管理
+
+```
+void addTopLevelItem(QTreeWidgetItem *item); 
+// 添加顶层节点
+
+void insertTopLevelItem(int index, QTreeWidgetItem *item);
+// 插入顶层节点
+
+QTreeWidgetItem *takeTopLevelItem(int index);
+// 移除顶层节点（不会自动 delete）
+
+QTreeWidgetItem *topLevelItem(int index) const;
+// 获取顶层节点
+
+int topLevelItemCount() const;
+// 获取顶层节点数量
+
+void clear();
+// 清空整个树
+```
+
+------
+
+#### 2. 当前节点操作
+
+```
+QTreeWidgetItem *currentItem() const;
+// 获取当前选中的节点
+
+void setCurrentItem(QTreeWidgetItem *item);
+// 设置当前选中的节点
+
+void setCurrentItem(QTreeWidgetItem *item, int column);
+// 设置当前选中的节点及列
+
+QTreeWidgetItem *itemAt(const QPoint &p) const;
+// 获取指定位置对应的节点
+```
+
+------
+
+#### 3. 展开与折叠
+
+```
+void expandItem(QTreeWidgetItem *item);
+// 展开节点
+
+void collapseItem(QTreeWidgetItem *item);
+// 折叠节点
+
+void expandAll();
+// 展开所有节点
+
+void collapseAll();
+// 折叠所有节点
+
+bool isItemExpanded(QTreeWidgetItem *item) const;
+// 判断节点是否展开
+```
+
+------
+
+#### 4. 列管理
+
+```
+void setColumnCount(int columns);
+// 设置列数
+
+int columnCount() const;
+// 获取列数
+
+void setHeaderLabel(const QString &label);
+// 设置单列表头
+
+void setHeaderLabels(const QStringList &labels);
+// 设置多列表头
+```
+
+例如：
+
+```
+treeWidget->setColumnCount(3);
+
+treeWidget->setHeaderLabels({
+    "名称",
+    "类型",
+    "大小"
+});
+```
+
+------
+
+#### 5. 查找
+
+```
+QList<QTreeWidgetItem *> findItems(
+    const QString &text,
+    Qt::MatchFlags flags,
+    int column = 0
+);
+// 查找符合条件的节点
+```
+
+例如：
+
+```
+auto items = treeWidget->findItems(
+    "Qt",
+    Qt::MatchContains | Qt::MatchRecursive
+);
+```
+
+常用匹配模式：
+
+```
+Qt::MatchExactly
+Qt::MatchContains
+Qt::MatchStartsWith
+Qt::MatchEndsWith
+Qt::MatchRecursive
+```
+
+------
+
+#### 6. 选择模式
+
+```
+void setSelectionMode(
+    QAbstractItemView::SelectionMode mode
+);
+```
+
+常见模式：
+
+```
+SingleSelection
+MultiSelection
+ExtendedSelection
+NoSelection
+```
+
+------
+
+#### 常用信号
+
+```
+void itemClicked(
+    QTreeWidgetItem *item,
+    int column
+);
+// 单击节点
+
+void itemDoubleClicked(
+    QTreeWidgetItem *item,
+    int column
+);
+// 双击节点
+
+void itemChanged(
+    QTreeWidgetItem *item,
+    int column
+);
+// 节点数据变化
+
+void currentItemChanged(
+    QTreeWidgetItem *current,
+    QTreeWidgetItem *previous
+);
+// 当前节点变化
+
+void itemExpanded(
+    QTreeWidgetItem *item
+);
+// 节点展开
+
+void itemCollapsed(
+    QTreeWidgetItem *item
+);
+// 节点折叠
+
+void itemSelectionChanged();
+// 选择变化
+```
+
+------
+
+### QTreeWidgetItem 介绍
+
+`QTreeWidgetItem` 是 Qt 中配合 `QTreeWidget` 使用的树节点对象。
+
+> 可以理解为：树中的每一个节点（Node）。
+
+每个节点可以包含：
+
+- 文本
+- 图标
+- 多列数据
+- 用户数据
+- 勾选状态
+- 父子节点关系
+
+例如：
+
+```
+Root
+├── Child1
+│   ├── Child1_1
+│   └── Child1_2
+└── Child2
+```
+
+其中每个节点都是一个 `QTreeWidgetItem`。
+
+------
+
+#### 常用函数
+
+##### 1. 构造函数
+
+```
+QTreeWidgetItem();
+
+QTreeWidgetItem(QTreeWidget *parent);
+// 顶层节点
+
+QTreeWidgetItem(QTreeWidgetItem *parent);
+// 子节点
+
+QTreeWidgetItem(
+    const QStringList &strings
+);
+// 多列文本
+
+QTreeWidgetItem(
+    QTreeWidgetItem *parent,
+    const QStringList &strings
+);
+```
+
+例如：
+
+```
+QTreeWidgetItem *root =
+    new QTreeWidgetItem(treeWidget);
+
+root->setText(0, "Root");
+
+QTreeWidgetItem *child =
+    new QTreeWidgetItem(root);
+
+child->setText(0, "Child");
+```
+
+------
+
+##### 2. 文本与图标
+
+```
+void setText(int column, const QString &text);
+QString text(int column) const;
+
+void setIcon(int column, const QIcon &icon);
+QIcon icon(int column) const;
+```
+
+例如：
+
+```
+item->setText(0, "main.cpp");
+item->setText(1, "CPP File");
+```
+
+------
+
+##### 3. 数据存储
+
+```
+void setData(
+    int column,
+    int role,
+    const QVariant &value
+);
+
+QVariant data(
+    int column,
+    int role
+) const;
+```
+
+例如：
+
+```
+item->setData(
+    0,
+    Qt::UserRole,
+    1001
+);
+```
+
+------
+
+##### 4. 父子节点管理
+
+```
+void addChild(QTreeWidgetItem *child);
+// 添加子节点
+
+void insertChild(
+    int index,
+    QTreeWidgetItem *child
+);
+
+QTreeWidgetItem *child(int index) const;
+// 获取子节点
+
+int childCount() const;
+// 子节点数量
+
+QTreeWidgetItem *parent() const;
+// 获取父节点
+
+QTreeWidgetItem *takeChild(int index);
+// 移除子节点
+```
+
+例如：
+
+```
+QTreeWidgetItem *root =
+    new QTreeWidgetItem();
+
+QTreeWidgetItem *child =
+    new QTreeWidgetItem();
+
+root->addChild(child);
+```
+
+------
+
+##### 5. 展开状态
+
+```
+void setExpanded(bool expand);
+
+bool isExpanded() const;
+```
+
+例如：
+
+```
+root->setExpanded(true);
+```
+
+------
+
+##### 6. 勾选框
+
+```
+void setCheckState(
+    int column,
+    Qt::CheckState state
+);
+
+Qt::CheckState checkState(
+    int column
+) const;
+```
+
+例如：
+
+```
+item->setCheckState(
+    0,
+    Qt::Checked
+);
+```
+
+------
+
+##### 7. 外观控制
+
+```
+void setFont(
+    int column,
+    const QFont &font
+);
+
+void setForeground(
+    int column,
+    const QBrush &brush
+);
+
+void setBackground(
+    int column,
+    const QBrush &brush
+);
+
+void setHidden(bool hide);
+
+bool isHidden() const;
+```
+
+------
+
+#### 设置自定义控件
+
+和 `QListWidget` 类似，可以给某个节点放置一个自定义 Widget。
+
+```
+QTreeWidgetItem *item =
+    new QTreeWidgetItem(treeWidget);
+
+item->setText(0, "Name");
+
+QLineEdit *edit =
+    new QLineEdit;
+
+treeWidget->setItemWidget(
+    item,
+    1,
+    edit
+);
+```
+
+参数说明：
+
+```
+void setItemWidget(
+    QTreeWidgetItem *item,
+    int column,
+    QWidget *widget
+);
+```
+
+即：
+
+- 第一个参数：节点
+- 第二个参数：列号
+- 第三个参数：控件
+
+例如：
+
+```
+名称          值
+----------------------
+用户名      [QLineEdit]
+密码        [QLineEdit]
+```
+
+这种配置界面非常常见。
+
+------
+
+#### 行为控制（flags）
+
+和 `QListWidgetItem` 完全一致：
+
+```
+Qt::ItemFlags flags() const;
+
+void setFlags(Qt::ItemFlags flags);
+```
+
+常用选项：
+
+```
+Qt::ItemIsSelectable
+Qt::ItemIsEnabled
+Qt::ItemIsEditable
+Qt::ItemIsUserCheckable
+Qt::ItemIsDragEnabled
+Qt::ItemIsDropEnabled
+Qt::ItemIsAutoTristate
+```
+
+特别说明：
+
+#### Qt::ItemIsAutoTristate
+
+这是树控件中特别常用的一个 Flag。
+
+```
+item->setFlags(
+    item->flags()
+    | Qt::ItemIsAutoTristate
+    | Qt::ItemIsUserCheckable
+);
+```
+
+效果：
+
+```
+☑ Root
+ ├─ ☑ Child1
+ └─ ☐ Child2
+```
+
+父节点状态会根据子节点自动变为：
+
+```
+☑ 已全部选中
+☐ 全部未选中
+◩ 部分选中
+```
+
+这也是文件选择树最常见的实现方式。
+
+------
+
+#### Role 数据
+
+与 `QListWidgetItem` 完全一致。
+
+Qt 内部维护：
+
+```
+QMap<int, QVariant>
+```
+
+常用 Role：
+
+```cpp
+Qt::DisplayRole
+Qt::DecorationRole
+Qt::EditRole
+Qt::CheckStateRole
+Qt::ToolTipRole
+Qt::ForegroundRole
+Qt::BackgroundRole
+
+Qt::UserRole
+Qt::UserRole + 1
+Qt::UserRole + 2
+...
+```
+
+例如：
+
+```cpp
+item->setData(
+    0,
+    Qt::UserRole,
+    1001
+); // ID
+
+item->setData(
+    0,
+    Qt::UserRole + 1,
+    "Folder"
+); // 类型
+```
+
+## QTableWidget
+
+`QTableWidget` 是 Qt 中的表格组件类，支持行表头、列表头。除了行列表头之外的表格区域是内容区，每个网格单元有一个行号、列号，每一个单元格是一个 `QTableWidgetItem` 对象，可以设置文字内容、字体、前景色、背景色、图标，也可以设置编辑和显示标记，每个单元格还可以存储一个 `QVariant` 数据，用于设置用户自定义数据。
+
+###  常用函数
+
+```cpp
+/* 行列管理 */
+int columnCount(); // 获取总列数
+void setColumnCount(int columns); // 设置总列数
+
+void setRowCount(int rows); // 设置总行数
+int rowCount(); // 获取总行数
+
+void insertRow(int row); // 在指定行插入一行（原行在新行下方）
+
+void insertColumn(int column); // 在指定列插入一列（原列在新列后方）
+
+void removeRow(int row); // 删除指定行
+
+void removeColumn(int column); // 删除指定列
+
+/* 单元格数据管理 */
+// 设置单元格项
+void setItem(int row, int column, QTableWidgetItem *item);
+
+// 获取单元格项，若没有该项，则返回nullptr
+QTableWidgetItem *item(int row, int column) const; 
+
+// 删除所有单元格数据，保留行列结构和表头
+void clearCountents(); 
+
+// 清空整个表格，包括单元格数据和表头数据，但保留行列数量。
+void clear();
+
+/* 表头管理 */
+// 设置水平表头，只设置所有的表头文字内容
+void setHorizontalHeaderLabels(const QStringList &labels);
+
+// 设置垂直表头，只设置所有的表头文字内容
+void setVerticalHeaderLabels(const QStringList &labels);
+
+// 获取水平表头对象
+QHeaderView *horizontalHeader() const;
+
+// 获取垂直表头对象
+QHeaderView *verticalHeader() const;
+
+/* 当前单元格管理（需要单元格可选中，且为单元格选中模式） */
+// 设置当前选中的单元格
+void setCurrentCell(int row, int column);
+
+// 获取当前行
+int currentRow() const;
+
+// 获取当前列
+int currentColumn() const;
+
+// 获取当前单元项
+QTableWidgetItem *currentItem() const;
+
+/* 选中项管理 */
+// 获取所有选中项
+QList<QTableWidgetItem *> selectedItems() const;
+
+// 获取所有选中的区域
+QList<QTableWidgetSelectionRange> selectedRanges() const;
+
+// 选择某个单元格
+void setRangeSelected(const QTableWidgetSelectionRange &range, bool select);
+
+// 清除选择
+void clearSelection();
+
+/* 编辑功能 */
+// 设置编辑模式,该项属于视图层的选项,与 QTableWidgetItem 的 falgs 共同决定是否可以编辑
+void setEidtTriggeers(EditTriggers editTriggers);
+/* EditTriggers是QAbstractItemView中的一个枚举类型，可选项如下：
+	- NoEditTirggers 禁止编辑
+	- CurrentChanged 当前项发生变化时（键盘上下移动，鼠标点击其他单元格）进行编辑
+	- DoubleClicked 双击单元格进入编辑（最常见）
+	- SelectedClicked 如果当前项已经被选中，再次单击时进入编辑（常与DoubleClicked同时使用）
+	- EditKeyPressed 按编辑键进入编辑（通常是F2，一些平台还支持 Enger、Return）
+	- AnyKeyPressed 按任意字符立即开始编辑，并替换为按下的字符
+	- AllEditTriggers 开启所有编辑触发方式（除了NoEditTriggers）
+*/
+
+// 打开指定单元格编辑器
+void editItem(QTableWidgetItem *item);
+
+/* 排序功能 */
+// 启用排序，启用后点击表头即可排序
+void setSortingEnabled(bool enable);
+
+// 按指定列排序
+void sortItems(int column Qt::SortOrder order);
+/* SortOrder 是 Qt 类中的一个枚举类型，可选项如下：
+	- AscendingOrder：升序排序
+	- DescendingOrder：降序排序
+*/
+
+/* 单元格控件管理 */
+// 设置单元格控件
+void setCellWidget(int row, int column, QWidget *widget);
+
+// 获取单元格控件
+QWidget *cellWidget(int row, int column) const;
+
+// 删除单元格控件
+void removeCellWidget(int row, int column);
+
+/* 外观设置 */
+// 设置列宽
+void setColumnWidth(int column , int width);
+
+// 设置行高
+void setRowHeight(int row, int height);
+
+// 自动调整列宽
+void resizeColumnsToContents(); 
+
+// 自动调整行高
+void resizeRowsToContents();
+
+// 隐藏列
+void setColumnHiddend(int column, bool hide);
+
+// 隐藏行
+void setRowHidded(int row, bool hide);
+```
+
+### 常用信号
+
+```cpp
+// 当前单元格变化
+void currentCellChanged(int currentRow, int currnetColumn, 
+						int previousRow, int previousColumn);
+```
+
+```cpp
+// 单元格点击
+void cellClicked(int row, int column);
+```
+
+```cpp
+// 单元格双击
+void cellPressed(int row, int column);
+```
+
+```cpp
+// 单元格进入
+void cellEntered(int row, int column);
+// 前提是，需要开启鼠标跟踪
+void setMouseTracking(bool enable);
+```
+
+```cpp
+// 单元格内容变化
+void cellChanged(int row, int column);
+```
+
+```cpp
+// 单元格激活
+void cellActivated(int row, int column);
+// 通常由：双击、回车、键盘导航触发
+```
+
+```cpp
+// 项对象变化
+void itemChanged(QTableWidgetItem *item);
+// 相比于 cellChanged()，能够直接获得对应的 QTableWidgetItem 对象
+```
+
+
+
