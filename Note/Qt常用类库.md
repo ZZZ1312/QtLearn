@@ -262,3 +262,9 @@ str.reserve(1000);
 
 ## QAction
 
+
+
+## QMenu
+
+
+
