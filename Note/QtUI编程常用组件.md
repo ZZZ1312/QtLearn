@@ -1,6 +1,267 @@
 # Qt UI 编程常用组件基础
 
+## UI 设计介绍
+
+Qt中常用的窗体基类是 `QWidget`、`QDialog` 和 `QMainWindow`。
+
+`QWidget` 直接继承于 `QObject`，是 `QDialog` 和 `QMainWIndow` 的父类。另外还有一个 `QWindow`，它同时继承 `QObject` 和 `QSurface`。
+
+![Qt几个窗体类的主要特点和用途](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260619233734896.png)
+
+这些窗体类的主要特点和用途如下：
+
+- `QWidget`：没有指定父容器时可作为独立的窗口，指定父容器后可以作为容器的内部组件。
+- `QDialog`：用于设计对话框。
+- `QMainWindow`：用于设计带有菜单栏、工具栏啊、状态栏的主窗口，一般以独立窗口显示。
+- `QSplashScreen`：用于应用程序启动时的 splash 窗口，没有边框。
+- `QMdiSubWindow`：用于为 `QMdiArea` 提供一个子窗体，用于 MDI（多文档）应用程序的设计。
+- `QDesktopWindow`：具有多个显卡和多个显示器的系统具有多个桌面，该类提供用户桌面信息，如屏幕信息、每个屏幕的大小等。
+- `QWindow`：通过底层的窗口系统表示一个窗口的类，一般作为一个父容器的嵌入式窗体，不作为独立窗体。
+
+### Qt父子机制
+
+父子机制是 Qt 对象管理的核心设计之一，它建立在 `QObject` 基础之上，用于实现：
+
+- 对象层级管理
+- 自动内存释放
+- 事件传播
+- 界面组件组织
+
+几乎所有 Qt 控件都依赖这一机制。
+
+#### 设置父子机制
+
+在创建时，或调用 `setParent` 函数，可以形成父子关系。
+
+```cpp
+// 1. 第一种
+QObject *parent = new QObject;
+QObject *child = new QObjec(parent);
+
+// 2. 第二种
+QObject *parent = new QObject;
+QObject *child = new QObject;
+
+child->setParent(parent);
+```
+
+此时形成
+
+```
+QObject *parent = new QObject;
+QObject *child = new QObject;
+
+child->setParent(parent);
+```
+
+可以互相访问
+
+```cpp
+qDebug() << child->parent();
+
+qDebug() << parent->children();
+```
+
+#### 自动内存管理
+
+设置了父子关系后，在父对象析构时，会自动析构所有子对象。
+
+析构顺序为先析构所有子对象，然后析构父对象。
+
+**对象树**
+
+Qt内部维护一颗对象树，例如：
+
+```cpp
+QMainWindow
+ ├── QWidget
+ │    ├── QPushButton
+ │    └── QLabel
+ │
+ └── QStatusBar
+```
+
+如果删除根节点 `QMainWindow` ，那么整棵树会全部释放。
+
+#### UI界面包含关系
+
+如果给 `QWidget` 设置了父子机制。那么子组件会显示在父组件中。
+
+子组件会跟随窗口移动、隐藏和销毁。
+
+#### 信号槽与父子机制
+
+如果子组件连接和父组件连接了信号，当子组件删除时，Qt会自动断开和父组件的连接。
+
+#### 事件传播中的父子关系
+
+例如鼠标事件：
+
+```cpp
+点击子控件
+    ↓
+子控件处理
+    ↓
+未处理
+    ↓
+父控件处理
+```
+
 ## QWidget
+
+### 创建右键菜单
+
+每个从`QWidget` 继承的类都有信号 `customContextMenuRequested()` 这个信号在鼠标右键点击时发射。可以创建和运行右键快捷菜单。
+
+```cpp
+// 案例
+void MainWindow::on_listWidget_customContextMenuRequested(const QPoint &pos)
+{
+	Q_UNUSED(pos);
+	QMenu *menuList = new QMenu(this); // 创建菜单
+	// 添加 Actions 菜单项
+	menuList->addAction(ui->actListIni);
+	menuList->addAction(ui->actListClear);
+	menuList->exec(QCursor::pos()); // 在鼠标光标位置显示右键快捷菜单
+	delete menuList;
+}
+```
+
+### 设置重要特性
+
+#### `setAttribute` 函数
+
+```cpp
+void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on = true);
+```
+
+`Qt::WidgetAttribute` 定义了窗体的一些属性，可以打开或关闭这些属性。常用常量及意义如下。
+
+| 常量                       | 意义                              |
+| -------------------------- | --------------------------------- |
+| `Qt::WA_AcceptDrops`       | 允许窗体接收拖放来的组件          |
+| `Qt::WA_DeleteOnClose`     | 窗体关闭时删除自己，释放内存      |
+| `Qt::WA_Hover`             | 鼠标进入或移出窗体时产生paint事件 |
+| `Qt::WA_AcceptTouchEvents` | 窗体是否接受触屏事件              |
+
+#### `setWindowFlags`函数
+
+```cpp
+void QWidget::setWindowFlags(Qt::WindowFlags type);
+```
+
+type 是枚举类型 `Qt::WindowType` 的值的组合，用于同时设置多个标记。常见常量值如下。
+
+**表明窗体类型的常量**
+
+| 常量               | 意义                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| Qt::Widget         | 默认类型，如果有父窗体，就作为父窗体的子窗体，否则作为一个独立的窗口 |
+| Qt::Window         | 表明这个窗体是一个窗口，通常具有窗口的边框、标题栏，而不管它是否有父窗体。 |
+| Qt::Dialog         | 表明这个窗体是一个窗口，并且要显示为对话框（没有最小化最大化按钮），是 `QDialog` 类的默认类型。 |
+| Qt::Popup          | 表明这个窗体是用作弹出式菜单的窗体。                         |
+| `Qt::Tool`         | 表明这个窗体是 工具窗体，具有更小的标题栏和关闭按钮，通常作为工具栏的窗体。 |
+| `Qt::ToolTip`      | 表明这是用于 ToolTip 消息提示的窗体                          |
+| `Qt::SplashScreen` | 表明窗体是 splash 屏幕，是 `QSplashScreen` 类的默认类型      |
+| `Qt::Desktop`      | 表明窗体是桌面，这是 `QDesktopWidget` 类的类型               |
+| `Qt::SubWindow`    | 表明窗体是子窗体，                                           |
+
+**控制窗体显示效果的常量**
+
+| 常量                               | 意义                                                        |
+| ---------------------------------- | ----------------------------------------------------------- |
+| `Qt:::MSWindowFixedSizeDialogHint` | 在Windows平台上，使窗口具有更窄的边框，用于固定大小的对话框 |
+| `Qt::FramelessWindowHint`          | 创建无边框窗口                                              |
+
+**定制窗体外观的常量**
+
+使用这些常量，需要先设置属性 `Qt::CustomizeWindowHint`。
+
+| 常量                              | 意义                       |
+| --------------------------------- | -------------------------- |
+| `Qt::CustomizzeWindowHint`        | 关闭缺省的窗口标题栏       |
+| `Qt::WindowTitleHint`             | 窗口具有标题栏             |
+| `Qt::WindowSystemMenuHint`        | 有窗口系统菜单             |
+| `Qt::WindowMinimizeButtonHint`    | 有最小化按钮               |
+| `Qt::WindowMaximizeButtonHint`    | 有最大化按钮               |
+| `Qt::WindowMinMaxButtonsHint`     | 有最大化、最小化按钮       |
+| `Qt::WindowCloseButtonHint`       | 有关闭按钮                 |
+| `Qt::WindowContextHelpButtonHint` | 有上下文帮助按钮           |
+| `Qt::WindowStaysOnTopHint`        | 窗口总是处于最上层         |
+| `Qt::WindowStaysOnBottomHint`     | 窗口总是处于最下层         |
+| `Qt::WindowTransparentForInput`   | 窗口只作为输出，不接受输入 |
+
+```cpp
+void QWidget::setWindowFlag(Qt::WindowFlag flag, bool on = true);
+// 一次设置一个标记，可单独打开或关闭某个属性。
+```
+
+#### `setWindowState`函数
+
+```cpp
+void QWidget::setWindowState(Qt::WindowStates windowState)
+```
+
+`Qt::WindowState`  表示了窗体的状态。取值如下。
+
+| 常量                   | 意义                                 |
+| ---------------------- | ------------------------------------ |
+| `Qt::WindowNoState`    | 正常状态                             |
+| `Qt::WindowMinimized`  | 窗口最小化                           |
+| `Qt::WindowMaximized`  | 窗口最大化                           |
+| `Qt::WindowFullScreen` | 窗口填充整个屏幕，而且没有边框       |
+| `Qt::WindowActive`     | 变为活动的窗口，例如可以接受键盘输入 |
+
+#### `setWindowModality`函数
+
+```cpp
+void setWIndowModality(Qt::WindowModality windowModality);
+```
+
+`Qt::WindowModality` 是枚举值，取值如下。
+
+| 常量                   | 意义                                           |
+| ---------------------- | ---------------------------------------------- |
+| `Qt::NonModal`         | 无模态，不会阻止其他窗口的输入                 |
+| `Qt::WindowModal`      | 窗口对于其父窗口、所有的上级父窗口都是模态的   |
+| `Qt::ApplicationModal` | 窗口对整个应用程序是模态的，阻止所有窗口的输入 |
+
+#### `setWindowOpacity`函数
+
+```cpp
+void QWdiget::setWindowOpacity(qreal level);
+```
+
+用于设置窗口的透明度。`level` 是从 1.0 (完全不透明) 到 0.0 (完全透明）之间，默认是 1.0。
+
+### 事件
+
+事件（event）是由窗口系统产生的某些操作触发的特殊函数，例如鼠标操作、键盘操作等，还有窗口显示、关闭、绘制等相关的事件。`QWidget` 继承的窗口部件常用事件函数有以下几种。
+
+- `closeEvent()`：窗口关闭事件，可以在该处做一些处理，例如询问是否关闭窗口。
+- `showEvent()`：窗口显示时触发的事件。
+- `paintEvent()`：窗口绘制事件。
+- `mouseMoveEvent()`：鼠标移动事件。
+- `mousePressEvent()`：鼠标按下事件。
+- `mouseReleaseEvent()`：鼠标释放事件。
+- `keyPressEvent()`：键盘按下事件。
+- `keyReleaseEvent()`：键盘按键释放事件。
+
+## QMainWindow
+
+### 常用函数
+
+```cpp
+void setCentralWidget(QWidget *widget = nullptr);
+```
+
+设置中央控件。
+
+`QMainWindow` 具有自己的布局，使用该函数可以让控件处于中间最大的部分。
+
+## QAction
+
+## QMenu
 
 ## 标签QLabel
 
