@@ -177,19 +177,19 @@ type 是枚举类型 `Qt::WindowType` 的值的组合，用于同时设置多个
 
 使用这些常量，需要先设置属性 `Qt::CustomizeWindowHint`。
 
-| 常量                              | 意义                       |
-| --------------------------------- | -------------------------- |
-| `Qt::CustomizzeWindowHint`        | 关闭缺省的窗口标题栏       |
-| `Qt::WindowTitleHint`             | 窗口具有标题栏             |
-| `Qt::WindowSystemMenuHint`        | 有窗口系统菜单             |
-| `Qt::WindowMinimizeButtonHint`    | 有最小化按钮               |
-| `Qt::WindowMaximizeButtonHint`    | 有最大化按钮               |
-| `Qt::WindowMinMaxButtonsHint`     | 有最大化、最小化按钮       |
-| `Qt::WindowCloseButtonHint`       | 有关闭按钮                 |
-| `Qt::WindowContextHelpButtonHint` | 有上下文帮助按钮           |
-| `Qt::WindowStaysOnTopHint`        | 窗口总是处于最上层         |
-| `Qt::WindowStaysOnBottomHint`     | 窗口总是处于最下层         |
-| `Qt::WindowTransparentForInput`   | 窗口只作为输出，不接受输入 |
+| 常量                              | 意义                                                         |
+| --------------------------------- | ------------------------------------------------------------ |
+| `Qt::CustomizzeWindowHint`        | xxxxxxxxxx void QPerson::incAge(){    ++m_age;    emit ageChanged(m_age);}cpp |
+| `Qt::WindowTitleHint`             | 窗口具有标题栏                                               |
+| `Qt::WindowSystemMenuHint`        | 有窗口系统菜单                                               |
+| `Qt::WindowMinimizeButtonHint`    | 有最小化按钮                                                 |
+| `Qt::WindowMaximizeButtonHint`    | 有最大化按钮                                                 |
+| `Qt::WindowMinMaxButtonsHint`     | 有最大化、最小化按钮                                         |
+| `Qt::WindowCloseButtonHint`       | 有关闭按钮                                                   |
+| `Qt::WindowContextHelpButtonHint` | 有上下文帮助按钮                                             |
+| `Qt::WindowStaysOnTopHint`        | 窗口总是处于最上层                                           |
+| `Qt::WindowStaysOnBottomHint`     | 窗口总是处于最下层                                           |
+| `Qt::WindowTransparentForInput`   | 窗口只作为输出，不接受输入                                   |
 
 ```cpp
 void QWidget::setWindowFlag(Qt::WindowFlag flag, bool on = true);
@@ -2814,5 +2814,1094 @@ void QWIntSpinDelegate::updateEditorGeometry(QWidget *editor, const QStyleOption
     // 设置组件大小
     editor->setGeometry(option.rect);
 }
+```
+
+# 绘图
+
+Qt的二维绘图基本功能是使用 `QPainter` 在绘图设备（例如 `QWidget`、`QPixmap`）上进行绘制基本的点、线、圆等基本形状组合成自己需要的图形。
+
+> 得到的图形是不可交互操作的图形。
+
+Qt 还提供了 Graphics View 架构，可以在场景中绘制图件，并且每个图件都是可选择、可交互的。
+
+## QPainter
+
+### 介绍
+
+1. `QPainter` 和 `QPaintDevice`
+
+   绘图系统基于 `QPainter`、`QPaintDevice`和`QPaintEngine`类。`QPainter` 是用来进行绘图操作的类，`QPaintDevice` 是一个可以使用 `QPainter` 进行绘图的抽象二维界面。`QPaintEngine` 给 `QPainter` 提供在不同设备上绘图的接口。`QPaintEnging` 类由 `QPainter` 和 `QPaintDevice` 内部使用。
+
+2. paintEvent 事件和绘图区
+
+   最常用的绘图设备是 `QWidget` 类。从 `QWidget` 类继承的类都有 `paintEvent()` 事件，要在设备上绘图，只需要重定义此事件并编写响应代码。创建一个 `QPainter` 对象获取绘图设备的接口，然后就可以在绘图设备的“画布”上绘图了。
+
+   在 `paintEvent()` 事件里绘图的基本程序结构是：
+
+   ```cpp
+   void Widget::paintEvent(QPaintEvent *event)
+   {
+   	QPainter painter(this); // 创建于绘图设备关联的 QPainter 对象
+   	// ... 绘图代码
+   }
+   ```
+
+3. 坐标系统
+
+   `QWidget` 的绘图区就是其窗口内部区域。其坐标系统如下图所示。
+
+   ![QWidget 的坐标系统](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622112357690.png)
+
+   **坐标系统的单位是像素**
+
+   > 该坐标系统是绘图区的局部物理坐标，称为视口（viewport）坐标。
+   >
+   > 还有一个逻辑坐标，称为窗口（window）坐标。
+
+4. 绘图的主要属性
+
+   控制绘图的元素特性的是 `QPainter` 的 3 个属性。
+
+   - pen 属性：是一个 `QPen` 对象，用于控制线条的颜色、宽度、线型等。
+   - brush 属性：是一个 `QBrush` 对象，用于设置一个区域的填充特性，可以设置填充颜色、填充方式、渐变特性等，还可以采用图片做填充。
+   - font 属性：是一个 `QFont` 对象，用于绘制文字时，设置文字的字体样式、大小等属性.
+
+### 常用函数
+
+**抗锯齿**
+
+```
+// 1. 设置或关闭单个渲染提示（最常用）
+// hint: 渲染提示枚举值；on: true 代表开启，false 代表关闭
+void setRenderHint(QPainter::RenderHint hint, bool on = true);
+
+// 2. 批量设置多个渲染提示
+// hints: 可以通过按位或（|）组合多个枚举值
+void setRenderHints(QPainter::RenderHints hints, bool on = true);
+
+// 3. 配套的 Getter 函数：判断当前是否开启了某个提示
+bool testRenderHint(QPainter::RenderHint hint) const;
+```
+
+1. `QPainter::Antialiasing`（核心：抗锯齿）
+
+- **作用**：对直线、圆弧、多边形等几何图形的边缘进行平滑处理。
+- **原理**：当图形边界落在非整数像素点（或斜线区域）时，绘图引擎会通过色彩混合算法，在边缘产生半透明的过渡像素（亚像素渲染），从而消除“视觉毛刺”。
+- **视觉对比例子**：
+
+2. `QPainter::TextAntialiasing`（文本抗锯齿）
+
+- **作用**：专门用于文字绘制（`drawText`）的平滑开关。
+- **注意**：通常情况下，Qt 会默认跟随系统的字体平滑设置（如 Windows 的 ClearType）。但如果你在自定义控件里绘制倾斜文字、特效文字，手动开启它可以确保字体边缘绝对丝滑。
+
+3. `QPainter::SmoothPixmapTransform`（图片平滑变换）
+
+- **作用**：专门针对图片（`QPixmap` / `QImage`）在进行**放大、缩小或旋转**时的图像优化。
+- **原理**：默认情况下，图片缩放采用的是“最近邻插值”算法，速度极快但缩放后会有强烈的马赛克和锯齿。开启此项后，会启用**双线性过滤算法（Bilinear Filtering）**，让缩放后的图片依然平滑清晰。
+
+**绘图函数**
+
+`QPainter` 支持绘制多种简单图案，例如点、线、矩形、圆形、三角形等等。具体细节查看 Qt 官方文档。
+
+**坐标变化**
+
+`QPainter` 默认提供的坐标系统是右上角为原点（0，0）。X轴水平向右、Y轴水平向下的直角坐标系。`QPainter` 提供了一些坐标变换的功能。
+
+```cpp
+// 坐标系统平移一定的偏移量，坐标原点平移到新的点
+void translate(qreal x, qreal y);
+```
+
+表示将坐标系统水平方向平移 x 个单位，垂直方向平移 y 个单位。
+
+> 将坐标原点变换到窗口中心在绘制某些图形时非常方便。
+
+```cpp
+// 坐标系统顺时针旋转一个角度
+void rotate(qreal angle);
+```
+
+表示将坐标系统绕坐标原点旋转 angle 角度，单位是度。angle 是正数时顺时针旋转。为负数时是逆时针旋转。
+
+```cpp
+// 坐标系统缩放
+void scale(qreal sx, qreal sy);
+```
+
+sx，sy分别为横向和纵向的缩放比例，大于1 是放大，小于1是缩小。
+
+```cpp
+// 坐标系统做扭转变换
+void shear(qreal sh, qreal sv);
+
+// 保存painter当前的状态，方式是将当前状态压栈
+void save();
+
+// 恢复上一次的状态
+void restore();
+
+// 复位所有的坐标变换
+void resetTransform();
+```
+
+**视口和窗口**
+
+在 Qt 的二维绘图系统中，`QPainter` 的**视口（Viewport）\**和\**窗口（Window）\**是实现\**坐标系转换、图形自动缩放与自适应布局**的核心机制。
+
+**窗口（Window）**：是面向开发者的“逻辑坐标系”（你希望在多大的画布上画图）。
+
+**视口（Viewport）**：是面向设备的“物理坐标系”（图形最终要渲染到屏幕上多大的像素区域）。
+
+`QPainter` 内部维护了一个从“窗口”到“视口”的**线性映射矩阵**。
+
+当你调用 `painter.drawRect(x, y, w, h)` 绘图时，你传入的参数属于**窗口坐标（逻辑坐标）**。Qt 在真正把图形画到屏幕上之前，会自动根据窗口和视口的比例关系，将其等比缩放并平移到视口坐标（物理坐标）上。
+
+在默认情况下，窗口和视口是**完全重合**的：
+
+- 它们的左上角都是 `(0, 0)`。
+- 它们的大小都等于绘图设备（如 `QWidget`）的物理像素大小。
+- 此时，1个逻辑单位就等于1个屏幕像素。
+
+```cpp
+// ==========================================
+// 1. 窗口（Window）相关函数 - 逻辑坐标
+// ==========================================
+// 设置窗口（逻辑画布）的矩形区域
+void setWindow(const QRect &rect);
+void setWindow(int x, int y, int width, int height);
+
+// 获取当前窗口的矩形区域
+QRect window() const;
+
+// ==========================================
+// 2. 视口（Viewport）相关函数 - 物理坐标
+// ==========================================
+// 设置视口（物理渲染目标）的矩形区域
+void setViewport(const QRect &rect);
+void setViewport(int x, int y, int width, int height);
+
+// 获取当前视口的矩形区域
+QRect viewport() const;
+```
+
+**叠加规则**
+
+定了**新绘制的图形（源图像 Source）与画布上已经存在的图形（目标图像 Destination）以何种“像素混合规则”进行叠加。**
+
+```cpp
+// 设置当前的图像合成/混合模式
+void setCompositionMode(QPainter::CompositionMode mode);
+
+// 获取当前的图像合成模式
+QPainter::CompositionMode compositionMode() const;
+```
+
+1. 基础不透明度类（最常用）
+
+- **`CompositionMode_SourceOver` (默认值)**：最符合直觉的模式。新画的图形在旧图形**上方**。如果新图形有 Alpha 半透明通道，会自然渗透并看到底下的旧图形。
+- **`CompositionMode_DestinationOver`**：颠倒过来，新画的图形被“塞”到了旧图形的**下方**。
+
+2. 擦除与裁剪类（特效利器）
+
+- **`CompositionMode_Clear`**：清除画布。无论你画什么（哪怕画一个红色的圆），只要处于这个模式，它划过的区域对应的**画布像素会彻底变成完全透明（Alpha=0）**。
+- **`CompositionMode_SourceOut`**：只保留新图形中**没有与旧图形重叠**的部分，重叠部分变透明。
+- **`CompositionMode_DestinationIn`**：**（极为常用）** 类似 Photoshop 的剪切蒙版。只保留旧图形与新图形**相交**的部分，其余变透明。可以用来把任意图片裁剪成文字形状或猫咪形状。
+
+3. 高级光影融合类（数字图像处理）
+
+- **`CompositionMode_Multiply` (正片叠底)**：将新旧像素颜色相乘。颜色会变暗，常用于给物体画环境阴影。
+- **`CompositionMode_Screen` (滤色)**：将新旧像素颜色的反色相乘。颜色会变亮，常用于制作发光、霓虹灯、激光、手电筒光晕特效。
+- **`CompositionMode_Xor` (异或)**：新旧图形重叠的地方会被“扣空”变透明。常用于老式画图软件中拖动鼠标画矩形选框（再画一次就能恢复）。
+
+> 一共有四十多种的枚举值，可以查看 Qt 文档。
+
+### 绘图流程
+
+```cpp
+// 一般使用 QPainter 进行绘图的流程如下
+void Widget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QPainter painter(this);
+
+    QPen pen;
+    pen.setWidth(3);
+    pen.setColor(Qt::black);
+    painter.setPen(pen);
+
+    QBrush brush;
+    brush.setColor(Qt::red);
+    brush.setStyle(Qt::SolidPattern);
+    painter.setBrush(brush);
+
+    int W = this->rect().width();
+    int H = this->rect().height();
+ 
+    // 画一个矩形
+    QRect targetRect{W/4, H/4, W/2, H/2};
+	painter.drawRect(targetRect);
+}
+```
+
+## QPen
+
+`QPen` 用于绘图时对线条进行设置，主要包括线宽、颜色、线型等
+
+### 常用函数
+
+**构造函数**
+
+```cpp
+// 1. 默认构造函数（创建一个黑色、宽度为0、实线的画笔）
+QPen();
+
+// 2. 指定线型的构造函数（颜色默认为黑色，宽度为0）
+QPen(Qt::PenStyle style);
+
+// 3. 指定颜色、宽度、线型、线帽和连接点的完整构造函数
+QPen(const QColor &color, qreal width = 0, Qt::PenStyle style = Qt::SolidLine, Qt::PenCapStyle cap = Qt::SquareCap, Qt::PenJoinStyle join = Qt::BevelJoin);
+
+// 4. 使用 QBrush（画刷）作为线条填充色的构造函数（允许线条带有渐变色或纹理）
+QPen(const QBrush &brush, qreal width, Qt::PenStyle style = Qt::SolidLine, Qt::PenCapStyle cap = Qt::SquareCap, Qt::PenJoinStyle join = Qt::BevelJoin);
+
+// 5. 拷贝构造函数
+QPen(const QPen &pen);
+```
+
+**颜色与画刷**
+
+除了基础的 `QColor`，`QPen` 还可以使用 `QBrush`，这意味着你可以画出带有渐变色（Gradient）或图片纹理（Texture）的线条。
+
+```cpp
+// 获取/设置画笔颜色
+QColor color() const;
+void setColor(const QColor &color);
+
+// 获取/设置画笔画刷（用于高级填充，如渐变线）
+QBrush brush() const;
+void setBrush(const QBrush &brush);
+```
+
+**宽度与粗细**
+
+```cpp
+// 获取/设置画笔宽度（返回 qreal 即 double，支持浮点数精度的线条）
+qreal widthF() const;
+void setWidthF(qreal width);
+
+// 获取/设置画笔宽度（整型版本，内部会自动转换为 qreal）
+int width() const;
+void setWidth(int width);
+
+// 获取/设置是否为化妆笔（若为 true，即使 QPainter 缩放，线条宽度也保持设备像素不变）
+bool isCosmetic() const;
+void setCosmetic(bool cosmetic);
+```
+
+**线型样式**
+
+```cpp
+// 获取/设置线型样式
+Qt::PenStyle style() const;
+void setStyle(Qt::PenStyle style);
+
+// 自定义虚线模式（当 style 为 Qt::CustomDashLine 时使用）
+// 传入的 QVector<qreal> 轮流代表“实线长度”和“空白长度”
+QList<qreal> dashPattern() const; // 注：在旧版本中返回 QVector，Qt6 中统一为 QList
+void setDashPattern(const QList<qreal> &pattern);
+
+// 获取/设置虚线偏移量（改变虚线滚动的起始位置，常用于制作蚂蚁线动画）
+qreal dashOffset() const;
+void setDashOffset(const qreal offset);
+```
+
+线条样式：
+
+![各种样式的线条样式](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622164141675.png)
+
+**线帽与连接点样式**
+
+```cpp
+// 获取/设置线帽样式（端点形状：FlatCap平头, SquareCap方头, RoundCap圆头）
+Qt::PenCapStyle capStyle() const;
+void setCapStyle(Qt::PenCapStyle capStyle);
+
+// 获取/设置连接点样式（相交形状：MiterJoin尖角, BevelJoin斜角, RoundJoin圆角）
+Qt::PenJoinStyle joinStyle() const;
+void setJoinStyle(Qt::PenJoinStyle joinStyle);
+
+// 获取/设置尖角限制（当 joinStyle 为 MiterJoin 时，限制尖角突出的最大长度，防止角度过小时尖角无限延长）
+qreal miterLimit() const;
+void setMiterLimit(qreal limit);
+```
+
+线条端点（线帽）样式
+
+![image-20260622164224880](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622164224880.png)
+
+线条连接样式
+
+![image-20260622164315766](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622164315766.png)
+
+**比较与常用操作符**
+
+```cpp
+// 判断画笔是否是不透明的
+bool isSolid() const;
+
+// 赋值操作符
+QPen &operator=(const QPen &pen);
+
+// 比较操作符
+bool operator==(const QPen &pen) const;
+bool operator!=(const QPen &pen) const;
+```
+
+## QBrush
+
+`QBrush` 与 `QPen` 配合使用，`QBrush` 负责填充图形的内部区域。
+
+### 常用函数
+
+**构造函数**
+
+```cpp
+// 1. 默认构造函数（创建一个默认的、不进行任何填充的画刷，样式为 Qt::NoBrush）
+QBrush();
+
+// 2. 指定颜色和填充样式的构造函数（样式默认为实心纯色 Qt::SolidPattern）
+QBrush(const QColor &color, Qt::BrushStyle style = Qt::SolidPattern);
+QBrush(Qt::GlobalColor color, Qt::BrushStyle style = Qt::SolidPattern);
+
+// 3. 指定颜色和内置纹理图片（QPixmap）的构造函数
+QBrush(const QColor &color, const QPixmap &pixmap);
+
+// 4. 自定义图片纹理构造函数（直接将一张图片作为填充纹理，样式自动变为 Qt::TexturePattern）
+QBrush(const QPixmap &pixmap);
+QBrush(const QImage &image);
+
+// 5. 渐变填充构造函数（传入一个 QGradient 及其子类对象）
+QBrush(const QGradient &gradient);
+
+// 6. 拷贝构造函数
+QBrush(const QBrush &other);
+```
+
+**样式与颜色控制**
+
+```cpp
+// 获取/设置画刷的填充样式（如纯色、各种阴影线、渐变、纹理等）
+Qt::BrushStyle style() const;
+void setStyle(Qt::BrushStyle style);
+
+// 获取/设置画刷的颜色（如果是渐变或未知纹理，可能返回不确定颜色）
+const QColor &color() const;
+void setColor(const QColor &color);
+void setColor(Qt::GlobalColor color);
+```
+
+`Qt::BrushStyle` 的几个主要常量
+
+| 枚举常量                   | 描述                                                         |
+| -------------------------- | ------------------------------------------------------------ |
+| Qt::NoBrush                | 不填充                                                       |
+| Qt::SolidPattern           | 单一颜色填充                                                 |
+| Qt::HorPattern             | 水平线填充                                                   |
+| Qt::VerPattern             | 垂直线填充                                                   |
+| Qt::LinearGradienPattern   | 线性渐变，需要使用 QLinearGradient 类对象作为Brush           |
+| Qt::RedialGradientPattern  | 辐射渐变，需要使用QRadialGradient 类对象作为Brush            |
+| Qt::ConicalGradientPattern | 圆锥型渐变，需要使用 QConicalGradientPattern 类对象作为 Brush |
+| Qt::TexturePattern         | 材质填充，需要指定 texture 或 textureImage 图片              |
+
+填充样式
+
+![image-20260622165249703](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622165249703.png)
+
+渐变填充样式
+
+- `QLinearGradient`：是线性渐变，指定一个起点和颜色，终点和颜色，还可以指定中间某个点的颜色，起点和终点之间的颜色会自动计算（插值计算）。
+
+  ![image-20260622181455914](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622181455914.png)
+
+- `QRadialGrandient`：辐射渐变，有两种方式：简单辐射渐变和扩展辐射渐变两种方式。简单辐射渐变是在一个圆内的一个焦点和一个端点之间生成渐变色。扩展辐射渐变是在一个焦点圆和一个中心圆之间生成渐变色。
+
+  ![image-20260622181439851](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622181439851.png)
+
+  
+
+- `QConicalGradient`：圆锥形渐变，围绕一个中心逆时针生成渐变色。
+
+  ![image-20260622181511639](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622181511639.png)
+
+扩展方式
+
+扩展方式是在填充完成之后，剩余部分应该怎样填充。有 3 种可取值。
+
+- `PadSpread`：用结束点的颜色填充外部区域。
+- `RepeatSpread`：重复使用渐变方式填充外部区域。
+- `ReflectSpread`：反射式重复使用渐变方式填充外部区域。
+
+例如，填充颜色是：红->绿->蓝。三种不同的选项效果如下：
+
+- `PadSpread`：红->绿->蓝->蓝->蓝->...。
+
+  ![image-20260622182016937](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622182016937.png)
+
+- `RepadSpread`：红->绿->蓝->红->绿->蓝->...。
+
+  ![image-20260622182041376](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622182041376.png)
+
+- `ReflectSpread`：红->绿->蓝->绿->红->绿->蓝->...。
+
+  ![image-20260622182059484](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622182059484.png)
+
+**高级填充：渐变与纹理**
+
+```cpp
+// 获取当前画刷绑定的渐变对象（只有在 style() 为渐变类型时才有效）
+const QGradient *gradient() const;
+
+// 获取/设置自定义纹理图片
+QPixmap texture() const;
+void setTexture(const QPixmap &pixmap);
+
+// 获取自定义的纹理图片（Qt5.15+ / Qt6 推荐，返回 QImage 性能在某些平台更好）
+QImage textureImage() const;
+void setTextureImage(const QImage &image);
+```
+
+ **空间变换**
+
+你可以让画刷填充的图案进行旋转、缩放或平移。例如，让填充的密点纹理旋转 45 度。
+
+```cpp
+// 获取/设置画刷的局部变换矩阵（Qt6 使用 QTransform，旧版本可能使用 QMatrix）
+QTransform transform() const;
+void setTransform(const QTransform &matrix);
+```
+
+**状态判断与操作符**
+
+```cpp
+// 判断画刷是否是不透明的（纯色且 Alpha 通道为 255）
+bool isOpaque() const;
+
+// 赋值与比较操作符
+QBrush &operator=(const QBrush &brush);
+bool operator==(const QBrush &brush) const;
+bool operator!=(const QBrush &brush) const;
+```
+
+## QPainterPath
+
+`QPainterPath` 是一个容器，充当了一个画图轨迹记录器。
+
+1. **复用性强**：路径只需创建并配置一次，就可以在 `paintEvent` 中被多次重复绘制，或者进行平移、旋转、缩放。
+
+2. **高级几何运算**：支持**交集、并集、差集**等布尔运算（例如：从一个矩形中“挖掉”一个圆形）。
+
+3. **完美的封闭填充**：无论路径多复杂，它都能根据特定规则（如奇偶规则）完美计算并填充内部区域。
+
+### 常用函数
+
+```cpp
+// 1. 默认构造函数（创建一个空的、没有任何轨迹的点）
+QPainterPath();
+
+// 2. 指定起始点（画笔落笔位置）的构造函数
+QPainterPath(const QPointF &startPoint);
+
+// 3. 拷贝构造函数
+QPainterPath(const QPainterPath &other);
+```
+
+**轨迹移动与直线**
+
+```cpp
+// 将当前画笔“提起”并移动到指定点（不留下划线痕迹，作为新一段轨迹的起点）
+void moveTo(const QPointF &point);
+void moveTo(qreal x, qreal y);
+
+// 从当前画笔位置，画一条直线到指定点（画笔位置更新为指定点）
+void lineTo(const QPointF &point);
+void lineTo(qreal x, qreal y);
+```
+
+**添加基础几何图形 **
+
+```cpp
+// 添加矩形
+void addRect(const QRectF &rect);
+void addRect(qreal x, qreal y, qreal width, qreal height);
+
+// 添加椭圆 / 正圆
+void addEllipse(const QRectF &rect);
+void addEllipse(const QPointF &center, qreal rx, qreal ry);
+
+// 添加圆角矩形
+void addRoundedRect(const QRectF &rect, qreal xRadius, qreal yRadius, Qt::SizeMode mode = Qt::AbsoluteSize);
+
+// 添加多边形
+void addPolygon(const QPolygonF &polygon);
+
+// 添加另一个已有的路径
+void addPath(const QPainterPath &path);
+```
+
+**曲线与弧线 **
+
+```cpp
+// 绘制一段圆弧（起始角和跨越角的单位依旧是 1/16 度）
+void addArc(const QRectF &rect, qreal startAngle, qreal sweepLength);
+
+// 二次贝塞尔曲线：从当前位置，通过控制点(cpx, cpy) 画一条曲线到终点(endPoint)
+void quadTo(const QPointF &ctrlPoint, const QPointF &endPoint);
+void quadTo(qreal cpx, qreal cpy, qreal endX, qreal endY);
+
+// 三次贝塞尔曲线：使用两个控制点(c1, c2) 画一条平滑曲线到终点(endPoint)
+void cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &endPoint);
+void cubicTo(qreal c1x, qreal c1y, qreal c2x, qreal c2y, qreal endX, qreal endY);
+```
+
+**路径控制与闭合**
+
+```cpp
+// 自动闭合路径：从当前画笔位置画一条直线连接到本段轨迹的起点(moveTo的点)，形成封闭图形
+void closeSubpath();
+
+// 强制清空路径里的所有轨迹数据，将其重置为空路径
+void clear();
+
+// 获取路径中当前画笔所处的坐标位置
+QPointF currentPosition() const;
+```
+
+**几何布尔运算**
+
+利用两个路径计算出新的路径形态（注意：这些是**非成员函数**，或者通过重载运算符使用）。
+
+```cpp
+// 返回两个路径的相交部分（交集）
+QPainterPath intersected(const QPainterPath &other) const;
+
+// 返回两个路径合并后的部分（并集）
+QPainterPath united(const QPainterPath &other) const;
+
+// 返回从当前路径中扣除 other 路径后的部分（差集/相减）
+QPainterPath subtracted(const QPainterPath &other) const;
+```
+
+**填充规则**
+
+当路径中的线条互相交错（比如画一个五角星）时，Qt 需要知道哪些区域算“内部”（需要涂色），哪些算“外部”（保持透明）。你可以通过 `path.setFillRule(Qt::FillRule)` 来设置。
+
+```cpp
+void setFillRule(Qt::FillRule rule);
+```
+
+- `Qt::OddEvenFill`（**奇偶规则，默认**）：从该区域向外引一条射线，如果与路径交叉了奇数次，就是内部；偶数次就是外部。
+
+- `Qt::WindingFill`（**非零环绕规则**）：根据路径线条的方向（顺时针/逆时针）来计算环绕数，通常用于需要完全填满交错图形的场景。
+
+## 集合核心类
+
+| **类名**         | **核心职责 (它是什么)**                         | **整数版 / 浮点版**            | **核心常用成员函数**                                 | **典型应用场景**                                     |
+| ---------------- | ----------------------------------------------- | ------------------------------ | ---------------------------------------------------- | ---------------------------------------------------- |
+| **`QPoint`**     | 描述二维空间中的**一个坐标点** $(x, y)$         | `QPoint` `QPointF`             | `x()`, `y()`, `setX()`, `setY()`                     | 捕捉鼠标点击位置、定义图形的起点或中心点。           |
+| **`QSize`**      | 描述物体的**尺寸大小**（宽度和高度）            | `QSize` `QSizeF`               | `width()`, `height()`, `scale()`, `isValid()`        | 设置控件的最小/最大尺寸、定义图片的缩放分辨率。      |
+| **`QRect`**      | 描述一个**矩形区域**（位置 + 大小）             | `QRect` `QRectF`               | `center()`, `contains()`, `intersects()`, `moveTo()` | 控件在屏幕上的布局范围、按钮点击区域、圆形的外切框。 |
+| **`QLine`**      | 描述空间中的一条**物理线段**（起点 $\to$ 终点） | `QLine` `QLineF`               | `p1()`, `p2()`, `length()`, `angle()`, `intersect()` | 绘制雷达扫描线、时钟指针、图表折线、线段碰撞检测。   |
+| **`QPolygon`**   | 描述由多个点顺次连接组成的**多边形**            | `QPolygon` `QPolygonF`         | `boundingRect()`, `containsPoint()`, `translated()`  | 绘制三角形箭头、五角星、不规则多边形按键。           |
+| **`QRegion`**    | 描述屏幕上不规则的**像素区域集合**              | 仅 `QRegion` *(无浮点版)*      | `intersected()`, `united()`, `subtracted()`          | 窗口异形裁剪（遮罩）、局部区域精确刷新、点击穿透。   |
+| **`QTransform`** | 描述 3x3 的**空间仿射变换矩阵**                 | 仅 `QTransform` *(内部全浮点)* | `translate()`, `rotate()`, `scale()`, `map()`        | 让图形或画布整体实现平移、旋转、缩放或镜像翻转。     |
+
+## Graphics View绘图架构
+
+通过 `QPainter` ，只能绘制位图，不能实现图件的选择、编辑、拖放和修改等功能。
+
+Graphics View 绘图架构是一种基于图形项（Graphics Item）的模型/视图模型，与 Model/View 模式类似，使用该架构可以绘制复杂的有几万个基本图形元件的图形，并且每个图形元件是**可选择、可拖放和修改的**。
+
+Graphics View 架构由 3 个部分组成，即场景、视图和图形项。
+
+![image-20260622221932097](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260622221932097.png)
+
+### 场景
+
+`QGraphicsScene` 类提供绘图场景（Scene）。场景是不可见的，可以向场景添加图形项或获取场景中的某个图形项
+
+#### 功能
+
+- 提供管理大量图形项的快速接口
+- 将事件传播给每个图形项
+- 管理每个图形项的状态，例如选择、焦点等
+- 管理未经变换的渲染功能，主要用于打印
+
+还有背景层和前景层，通常由 `QBrush` 指定。也可以通过重新实现 `drawBackground()` 和 `drawForeground()` 函数来实现自定义的背景和前景。
+
+### 视图
+
+`QGraphicsView` 提供绘图的视图（View）组件，用于显示场景的内容。
+
+一个场景可以设置几个视图，用于对同一个数据集提供不同的视图窗口。
+
+视图接受键盘和鼠标输入并转换为场景事件，进行坐标转换后传送给可视场景。
+
+### 图形项
+
+`QGraphicsItem` 就是一些基本的图形元件。
+
+Qt 提供了一些基本的图形项，如绘制椭圆的 `QGraphicsEllipseItem` 、绘制矩形的 `QGraphicsRectItem`、绘制文字的 `QGraphicsTextItem` 等。
+
+支持如下操作
+
+- 支持鼠标事件响应
+- 支持键盘输入，按键事件
+- 支持拖放操作
+- 支持组合，可以是父子项关系组合，也可以是通过 `QGraphicsItemGroup` 类进行组合。
+
+### 坐标系统
+
+Graphics View 系统有 3 个有效的坐标系。
+
+![image-20260623102413687](C:\Users\KKKK\Works\QtLearn\Note\QtUI编程常用组件.assets\image-20260623102413687.png)
+
+- 图形项坐标
+
+  图形项使用自己的局部坐标（Item Coordinates），通常以其中心为原点（0，0）。
+
+  图形项的鼠标事件的坐标是用局部坐标表示的。
+
+  创建自定义图形项，绘制图形项时只需要考虑其局部坐标，`QGraphicsScene` 和 `QGraphicsView` 会自动进行坐标转换。
+
+  图形项的位置是其中心点在父坐标系中的坐标（如果没有父图形项的，其位置就是在场景中的坐标）
+
+  如果一个图形项还是其他图形项的父项，父项进行坐标变换时，子项也做相同的坐标变换。
+
+- 视图坐标
+
+  视图坐标（View Coordinates）就是窗口界面（QWidget）的物理坐标，单位是像素。视口的左上角坐标总是（0，0）。
+
+  所有的鼠标事件、拖放事件的坐标首先是视图坐标定义的，然后用户需要将这些坐标映射为场景坐标，以便和图形项交互。
+  
+- 场景坐标
+
+  场景坐标（Scene Coordinates）描述了每个顶层图形项的位置。
+
+  创建场景时可以自定义场景矩形区的坐标范围。例如：`scene = new QGraphicsScene(-400, -300, 800, 600);`。
+
+  单位也是像素。
+
+  每个图形项在场景中都有一个位置坐标，由函数 `QGraphicsItem::scenePos()` 给出。还有一个图形项边界矩形，由 `QGraphicsItem::sceneBoundingRect()` 函数给出。边界矩形可以使 `QGraphicsScene` 知道场景的哪个矩形发生了变化。场景变化时会发射 `QGraphicsScene::changed()` 信号，参数是一个场景的矩形列表，表示发生变化的矩形区。
+
+- 坐标映射
+
+  在 `QGraphicsView` 的视口上单击鼠标，通过函数 `QGraphicsView::mapToScene()` 可以将视图坐标映射为场景坐标，然后用 `QGraphicsScene::itemAt()` 函数可以获取场景中鼠标光标处的图形项。
+
+### QGraphicsView视窗
+
+`QGraphicsView` 是 Qt 图形视图框架（Graphics View Framework）的核心组件之一。它扮演着“视图窗口（View）”**的角色，专门用于可视化显示**“图形场景（QGraphicsScene）”中的内容，并允许用户通过鼠标、键盘与场景中的图形项（QGraphicsItem）进行交互。
+
+#### 常用函数
+
+**构造函数**
+
+```cpp
+// 构造一个没有场景的视图
+QGraphicsView::QGraphicsView(QWidget *parent = nullptr);
+
+// 构造一个视图，并自动将其与指定的场景(scene)关联
+QGraphicsView::QGraphicsView(QGraphicsScene *scene, QWidget *parent = nullptr);
+```
+
+**场景关联与基础设置**
+
+```cpp
+// 设置当前视图需要显示的场景
+void QGraphicsView::setScene(QGraphicsScene *scene);
+
+// 获取当前视图关联的场景指针，如果没有关联则返回 nullptr
+QGraphicsScene *QGraphicsView::scene() const;
+
+// 设置视图在场景中的可视区域（场景矩形）
+void QGraphicsView::setSceneRect(const QRectF &rect);
+void QGraphicsView::setSceneRect(qreal x, qreal y, qreal w, qreal h);
+
+// 获取当前视图的可视区域矩形
+QRectF QGraphicsView::sceneRect() const;
+```
+
+**视图变换（缩放、旋转、平移）**
+
+```cpp
+// 缩放视图。sx 和 sy 分别是横向和纵向的缩放倍数（例如：1.2 表示放大 20%）
+void QGraphicsView::scale(qreal sx, qreal sy);
+
+// 旋转视图。angle 是旋转角度（顺时针为正数，逆时针为负数）
+void QGraphicsView::rotate(qreal angle);
+
+// 平移视图。dx 和 dy 是在屏幕坐标系下的平移像素距离
+void QGraphicsView::translate(qreal dx, qreal dy);
+
+// 彻底重置视图的所有变换（恢复到没有放大、缩小、旋转的初始状态）
+void QGraphicsView::resetTransform();
+
+// 直接设置自定义的变换矩阵
+void QGraphicsView::setTransform(const QTransform &matrix, bool combine = false);
+
+// 获取当前视图的变换矩阵
+QTransform QGraphicsView::transform() const;
+
+// 确保指定的矩形区域或图形项在视图中完全可见（必要时会自动平移或缩放视图）
+void QGraphicsView::ensureVisible(const QRectF &rect, int xmargin = 50, int ymargin = 50);
+void QGraphicsView::ensureVisible(qreal x, qreal y, qreal w, qreal h, int xmargin = 50, int ymargin = 50);
+void QGraphicsView::ensureVisible(const QGraphicsItem *item, int xmargin = 50, int ymargin = 50);
+
+// 缩放并平移视图，使得指定的矩形区域或整个场景完美填充当前的视图窗口
+void QGraphicsView::fitInView(const QRectF &rect, Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
+void QGraphicsView::fitInView(qreal x, qreal y, qreal w, qreal h, Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
+void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
+```
+
+**坐标转换（Mapping）**
+
+```cpp
+// 将视图（局部）坐标转换成场景坐标
+QPointF QGraphicsView::mapToScene(const QPoint &point) const;
+QRectF QGraphicsView::mapToScene(const QRect &rect) const;
+QPolygonF QGraphicsView::mapToScene(const QPolygon &polygon) const;
+QPainterPath QGraphicsView::mapToScene(const QPainterPath &path) const;
+
+// 将场景坐标转换成视图（局部）坐标
+QPoint QGraphicsView::mapFromScene(const QPointF &point) const;
+QRect QGraphicsView::mapFromScene(const QRectF &rect) const;
+QPolygon QGraphicsView::mapFromScene(const QPolygonF &polygon) const;
+QPainterPath QGraphicsView::mapFromScene(const QPainterPath &path) const;
+```
+
+**行为与交互模式配置**
+
+```cpp
+// 设置拖拽模式。可选值：
+// QGraphicsView::NoDrag (什么都不做)
+// QGraphicsView::MinimalViewportUpdate (框选模式，鼠标拖动会拉出选择框)
+// QGraphicsView::ScrollHandDrag (手势拖拽模式，鼠标变成小手，按住可以拖动整个视口)
+void QGraphicsView::setDragMode(QGraphicsView::DragMode mode);
+QGraphicsView::DragMode QGraphicsView::dragMode() const;
+
+// 设置视口更新模式（用于性能优化，决定画面如何重绘）
+void QGraphicsView::setViewportUpdateMode(QGraphicsView::ViewportUpdateMode mode);
+QGraphicsView::ViewportUpdateMode QGraphicsView::viewportUpdateMode() const;
+
+// 设置当缩放或平移时，视图的锚点位置（例如：以鼠标所在位置为中心缩放，还是以视图中心缩放）
+void QGraphicsView::setResizeAnchor(QGraphicsView::ViewportAnchor anchor);
+QGraphicsView::ViewportAnchor QGraphicsView::resizeAnchor() const;
+
+void QGraphicsView::setTransformationAnchor(QGraphicsView::ViewportAnchor anchor);
+QGraphicsView::ViewportAnchor QGraphicsView::transformationAnchor() const;
+
+// 设置背景刷和前景刷（通常直接调用 scene 的，但 view 也可以独立设置覆盖）
+void QGraphicsView::setBackgroundBrush(const QBrush &brush);
+QBrush QGraphicsView::backgroundBrush() const;
+
+void QGraphicsView::setForegroundBrush(const QBrush &brush);
+QBrush QGraphicsView::foregroundBrush() const;
+
+// 设置或获取用来渲染的底层视口部件（例如：可以传入 QOpenGLWidget 以开启硬件加速）
+void QGraphicsView::setViewport(QWidget *widget);
+QWidget *QGraphicsView::viewport() const;
+```
+
+#### 常用信号
+
+```cpp
+// 当用户的橡胶圈（Rubber Band）选择框所圈定的区域发生改变时触发
+// 比如在 DragMode 为 RubberBandDrag 时，鼠标拖出的蓝色选择框大小变化时
+void QGraphicsView::rubberBandChanged(QRect viewportRect, QPointF fromScenePoint, QPointF toScenePoint);
+```
+
+> 如果你想在 `QGraphicsView` 中捕获“鼠标点击了哪里”、“双击了哪个物体”这类信号，通常有三种正确途径，而不是在 View 中找 Signal：
+>
+> 1. **使用 `QGraphicsScene` 的信号：** `QGraphicsScene` 提供了丰富的交互信号，通常直接连接场景的信号更方便。
+> 2. **重写（Override）事件虚函数：** 如果你需要定制复杂的鼠标滚轮缩放、鼠标右键菜单，应该创建一个继承自 `QGraphicsView` 的自定义类，并重写它的事件处理器：
+
+### QGraphicsScene场景
+
+`QGraphicsScene` 是 Qt 图形视图框架（Graphics View Framework）的**核心管理中心**。它扮演着“三维世界里的舞台”或“画布（Canvas）”的角色。
+
+`QGraphicsScene` 本身是**不可见**的，它只负责在内存中维护和管理所有的图形项（`QGraphicsItem`），处理它们的位置、碰撞检测、状态选中以及事件分发。要把它显示出来，必须将其关联到一个或多个 `QGraphicsView`（视口）上。
+
+#### 常用函数
+
+**构造函数**
+
+```cpp
+// 构造一个空的图形场景
+QGraphicsScene::QGraphicsScene(QObject *parent = nullptr);
+
+// 构造一个指定大小和坐标系范围的图形场景
+QGraphicsScene::QGraphicsScene(const QRectF &sceneRect, QObject *parent = nullptr);
+QGraphicsScene::QGraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent = nullptr);
+```
+
+**场景尺寸（SceneRect）**
+
+```cpp
+// 设置场景的边界矩形（定义了场景的逻辑坐标系范围）
+void QGraphicsScene::setSceneRect(const QRectF &rect);
+void QGraphicsScene::setSceneRect(qreal x, qreal y, qreal w, qreal h);
+
+// 获取当前场景的边界矩形
+QRectF QGraphicsScene::sceneRect() const;
+
+// 这是一个极其有用的函数：根据当前场景中所有 Item 的边界，自动计算并返回一个刚能包裹住它们的矩形
+QRectF QGraphicsScene::itemsBoundingRect() const;
+```
+
+**图形项（Item）的管理（添加与删除）**
+
+```cpp
+// 将一个已有的 QGraphicsItem（或其派生类）添加到场景中
+void QGraphicsScene::addItem(QGraphicsItem *item);
+```
+
+**添加 Qt 内置的基础快捷图形项**
+
+为了方便开发，场景提供了直接创建并添加基础图形的方法，它们会返回创建好的对象指针：
+
+```cpp
+// 添加椭圆/圆
+QGraphicsEllipseItem *QGraphicsScene::addEllipse(const QRectF &rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());
+QGraphicsEllipseItem *QGraphicsScene::addEllipse(qreal x, qreal y, qreal w, qreal h, const QPen &pen = QPen(), const QBrush &brush = QBrush());
+
+// 添加直线
+QGraphicsLineItem *QGraphicsScene::addLine(const QLineF &line, const QPen &pen = QPen());
+QGraphicsLineItem *QGraphicsScene::addLine(qreal x1, qreal y1, qreal x2, qreal y2, const QPen &pen = QPen());
+
+// 添加矩形
+QGraphicsRectItem *QGraphicsScene::addRect(const QRectF &rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());
+QGraphicsRectItem *QGraphicsScene::addRect(qreal x, qreal y, qreal w, qreal h, const QPen &pen = QPen(), const QBrush &brush = QBrush());
+
+// 添加多边形
+QGraphicsPolygonItem *QGraphicsScene::addPolygon(const QPolygonF &polygon, const QPen &pen = QPen(), const QBrush &brush = QBrush());
+
+// 添加文本（支持纯文本和 HTML 富文本）
+QGraphicsTextItem *QGraphicsScene::addText(const QString &text, const QFont &font = QFont());
+QGraphicsSimpleTextItem *QGraphicsScene::addSimpleText(const QString &text, const QFont &font = QFont());
+
+// 添加图片（像素图）
+QGraphicsPixmapItem *QGraphicsScene::addPixmap(const QPixmap &pixmap);
+
+// 嵌入标准的 QWidget 控件（如 QPushButton、QLineEdit 等）
+QGraphicsProxyWidget *QGraphicsScene::addWidget(QWidget *widget, Qt::WindowFlags wFlags = Qt::WindowFlags());
+```
+
+**移除与清空 Item **
+
+```cpp
+// 将 Item 从场景中移除（注意：此函数只将 Item 从场景剥离，不会 delete 释放内存，需手动销毁）
+void QGraphicsScene::removeItem(QGraphicsItem *item);
+
+// 从场景中移除并销毁（delete）所有的 Item，彻底清空整个画布
+void QGraphicsScene::clear();
+```
+
+**图形项的检索与碰撞检测**
+
+```cpp
+// 获取当前场景中所有的 Item 列表（默认按照 Z 轴从高到低排序）
+QList<QGraphicsItem *> QGraphicsScene::items(Qt::SortOrder order = Qt::DescendingOrder) const;
+
+// 获取与指定点、矩形、多边形或路径相交/包含的所有 Item
+QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &pos, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape, Qt::SortOrder order = Qt::DescendingOrder) const;
+QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape, Qt::SortOrder order = Qt::DescendingOrder) const;
+
+// 获取在指定场景坐标 (x, y) 处最顶层的那个 Item，如果没有则返回 nullptr（极常用）
+QGraphicsItem *QGraphicsScene::itemAt(const QPointF &position, const QTransform &deviceTransform) const;
+QGraphicsItem *QGraphicsScene::itemAt(qreal x, qreal y, const QTransform &deviceTransform) const;
+
+// 获取当前被用户选中的所有 Item 的列表（Item 需开启 QGraphicsItem::ItemIsSelectable 属性）
+QList<QGraphicsItem *> QGraphicsScene::selectedItems() const;
+```
+
+**工具函数**
+
+```cpp
+// 设置/获取场景的背景画刷（可以用颜色，也可以用纹理图片填充背景）
+void QGraphicsScene::setBackgroundBrush(const QBrush &brush);
+QBrush QGraphicsScene::backgroundBrush() const;
+
+// 设置/获取场景的前景画刷（通常用来在最上层绘制网格线、坐标轴等）
+void QGraphicsScene::setForegroundBrush(const QBrush &brush);
+QBrush QGraphicsScene::foregroundBrush() const;
+
+// 获取当前正在显示这个场景的所有 QGraphicsView 视图列表（一个场景可以同时在多个视图显示）
+QList<QGraphicsView *> QGraphicsScene::views() const;
+
+// 手动强制触发更新、重绘整个场景
+void QGraphicsScene::update(const QRectF &rect = QRectF());
+```
+
+#### 常用信号
+
+```cpp
+// 核心信号：当场景中的某一块区域发生改变（如 Item 移动、重绘、删除）时触发
+// 参数 region 包含了所有发生重绘的矩形区域
+void QGraphicsScene::changed(const QList<QRectF> &region);
+
+// 当场景的边界矩形（sceneRect）发生改变时触发
+void QGraphicsScene::sceneRectChanged(const QRectF &rect);
+
+// 极常用：当场景中物体的“选中状态”发生改变时触发。可以通过 selectedItems() 获取当前最新被选中的项
+void QGraphicsScene::selectionChanged();
+
+// 当场景中获取键盘焦点的 Item 发生切换时触发
+void QGraphicsScene::focusItemChanged(QGraphicsItem *newFocusItem, QGraphicsItem *oldFocusItem, Qt::FocusReason reason);
+```
+
+### QGraphicsItem基本图形项 
+
+`QGraphicsItem` 是 Qt 图形视图框架（Graphics View Framework）中所有**图形项的基类**。
+
+**`QGraphicsItem` 并不是 `QObject` 的子类，因此它本身【没有】任何 Qt 信号（Signals）！**
+
+如果你需要让一个自定义的 Item 支持信号槽（比如被点击时发导一个自定义信号），你通常有两种解决方案：
+
+1. **多重继承：** 让你的自定义类同时继承 `QObject` 和 `QGraphicsItem`（注意 `QObject` 必须写在前面）。
+2. **继承 `QGraphicsObject`：** Qt 提供了一个官方封装类 `QGraphicsObject`，它已经帮你把 `QObject` 和 `QGraphicsItem` 组合好了，自带信号槽功能。
+
+####  常用的核心内置子类
+
+Qt 已经为你准备好了很多开箱即用的标准图形项：
+
+| **派生类名称**                | **用途说明**                                                 |
+| ----------------------------- | ------------------------------------------------------------ |
+| **`QGraphicsRectItem`**       | 矩形项                                                       |
+| **`QGraphicsEllipseItem`**    | 椭圆 / 圆形项                                                |
+| **`QGraphicsLineItem`**       | 直线段项                                                     |
+| **`QGraphicsPolygonItem`**    | 多边形项                                                     |
+| **`QGraphicsPixmapItem`**     | 图片 / 像素图项                                              |
+| **`QGraphicsTextItem`**       | 支持 HTML 富文本的文本项（可编辑、可选择）                   |
+| **`QGraphicsSimpleTextItem`** | 简单的单行纯文本项（性能比 TextItem 更好）                   |
+| **`QGraphicsProxyWidget`**    | 极其强大，可以将任意 `QWidget`（如 QPushButton）嵌入到场景中 |
+
+#### 常用函数
+
+**基础状态与特性开关（Flags）**
+
+```cpp
+// 设置图形项的功能特性
+void setFlag(GraphicsItemFlag flag, bool enabled = true);
+void setFlags(GraphicsItemFlags flags);
+
+// 🔍 极其常用的标志位（Flags）：
+// QGraphicsItem::ItemIsMovable        -> 允许鼠标拖动该物体
+// QGraphicsItem::ItemIsSelectable     -> 允许鼠标点击选中该物体
+// QGraphicsItem::ItemIsFocusable      -> 允许接受键盘输入焦点
+// QGraphicsItem::ItemSendsGeometryChanges -> 当物体坐标改变时发送通知（常用于连线跟随）
+```
+
+**位置与坐标控制（Geometry）**
+
+```cpp
+// 设置该 Item 在场景（或父 Item）坐标系中的位置
+void setPos(const QPointF &pos);
+void setPos(qreal x, qreal y);
+
+// 获取当前的坐标位置
+QPointF pos() const;
+qreal x() const;
+qreal y() const;
+
+// 移动相对距离（在当前位置基础上累加 dx, dy）
+void moveBy(qreal dx, qreal dy);
+
+// 每一个自定义 Item 都必须实现的纯虚函数：返回物体的几何外包矩形（用于刷新和碰撞检测）
+virtual QRectF boundingRect() const = 0;
+```
+
+**图形变换（旋转、缩放）**
+
+```cpp
+// 设置物体的旋转角度（单位度，顺时针为正。注意：会覆盖之前的角度）
+void setRotation(qreal angle);
+qreal rotation() const;
+
+// 设置物体的缩放比例（1.0 为原大小，2.0 为放大一倍）
+void setScale(qreal factor);
+qreal scale() const;
+
+// 关键函数：设置旋转和缩放的“中心基准点”（如果不设置，默认以物体局部坐标的 0,0 为中心旋转）
+void setTransformOriginPoint(const QPointF &origin);
+void setTransformOriginPoint(qreal x, qreal y);
+QPointF transformOriginPoint() const;
+
+// 重置物体的变换矩阵（注意：正如你之前遇到的，它不重置独立属性 rotation 和 scale）
+void resetTransform();
+```
+
+**层级与父子关系**
+
+```cpp
+// 设置堆叠顺序（Z轴）。Z值越大的物体，显示在越上层，会遮挡Z值小的物体
+void setZValue(qreal z);
+qreal zValue() const;
+
+// 设置父图形项。子 Item 会随着父 Item 一起移动、旋转、缩放
+void setParentItem(QGraphicsItem *parent);
+QGraphicsItem *parentItem() const;
+
+// 获取当前 Item 的所有子图形项列表
+QList<QGraphicsItem *> childItems() const;
+```
+
+**显示状态与数据绑定**
+
+```cpp
+// 控制显示与隐藏
+void setVisible(bool visible);
+bool isVisible() const;
+
+// 控制是否接收鼠标事件（如果设为 false，鼠标会直接穿透该物体）
+void setAcceptedMouseButtons(Qt::MouseButtons buttons);
+
+// 绑定自定义数据。相当于给 Item 挂载一个键值对字典，非常适合用来存放业务 ID 或业务对象
+void setData(int key, const QVariant &value);
+QVariant data(int key) const;
+```
+
+#### 常用信号
+
+由于 `QGraphicsItem` 没有信号，如果你想在它身上玩出花样（比如**鼠标悬停变色、双击弹出窗口、自定义绘制精美图案**），你就必须通过子类化它，并重写（Override）它的虚函数：
+
+```cpp
+class MyItem : public QGraphicsItem {
+public:
+    // 1. 必须重写：定义物体的边界
+    QRectF boundingRect() const override {
+        return QRectF(-25, -25, 50, 50); // 以中心为原点的 50x50 正方形
+    }
+
+    // 2. 必须重写：实现精美的具体绘制
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
+        painter->setPen(Qt::black);
+        painter->setBrush(Qt::red);
+        painter->drawRect(boundingRect()); // 画一个红色的正方形
+    }
+
+protected:
+    // 3. 可选重写：捕获鼠标按下事件
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override {
+        // 当被点击时，可以做逻辑处理
+        qDebug() << "我被点击了！";
+        
+        // 如果想让 Item 继续保持“能被拖动”的特性，必须调用基类的事件处理
+        QGraphicsItem::mousePressEvent(event);
+    }
+    
+    // 4. 可选重写：捕获鼠标悬停（需要先调用 setAcceptHoverEvents(true)）
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override {
+        qDebug() << "鼠标进来了";
+    }
+};
 ```
 
